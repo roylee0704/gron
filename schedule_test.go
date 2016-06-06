@@ -182,9 +182,8 @@ func getTime(value string) time.Time {
 			if err != nil {
 				panic(err)
 			}
-			// Daylight savings time tests require location
-			if ny, err := time.LoadLocation("UTC"); err == nil {
-				t = t.In(ny)
+			if loc, err := time.LoadLocation("UTC"); err == nil {
+				t = t.In(loc)
 			}
 		}
 	}
