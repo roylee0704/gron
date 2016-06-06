@@ -1,21 +1,11 @@
 # gron
-gron, inspired by clockwork.
-
-
+gron, Cron Jobs in Go.
 
 
 ## Design Goal
 
 - No delay job. Next schedule for a particular job shall not be delayed for its processing time. For example: Every(1).Minute() ensures tasks run at 10:01, 10:02, 10:03, but not 10:01+processing.
-- every - second,minute,hour,day,week
-- at (dow hh:mm)
-
-
-- take away second, its too risky to have diff(job) <=1second
--https://github.com/robfig/cron/blob/32d9c273155a0506d27cf73dd1246e86a470997e/constantdelay_test.go //follow this.
-
-
-
+- Every(second,minute,hour,day,week).At(hh:mm)
 
 ## Design Specs
 
