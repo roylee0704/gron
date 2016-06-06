@@ -99,8 +99,12 @@ func (as atSchedule) reset(t time.Time) time.Time {
 }
 
 // Next returns **next** time.
-// if t had passed its schedule, returns reset(t) + period, else returns reset(t)
+// if t passed its supposed schedule: reset(t), returns reset(t) + period,
+// else returns reset(t).
 func (as atSchedule) Next(t time.Time) time.Time {
-
-	return time.Time{}
+	next := as.reset(t)
+	if t.After(next) {
+		return next.Add(as.period)
+	}
+	return next
 }
