@@ -66,7 +66,7 @@ func (ps periodicSchedule) At(t string) Schedule {
 	}
 }
 
-// parse naively tokenises hours and seconds.
+// parse naively tokenises hours and minutes.
 //
 // returns error when input format was incorrect.
 func parse(hhmm string) (hh int, mm int, err error) {
