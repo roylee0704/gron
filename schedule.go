@@ -14,9 +14,15 @@ type Schedule interface {
 	Next(t time.Time) time.Time
 }
 
+// AtSchedule extends Schedule by enabling periodic-interval & time-specific setup
+type AtSchedule interface {
+	At(t string) Schedule
+	Schedule
+}
+
 // Every returns a Schedule reoccurs every period p, p must be at least
 // time.Second.
-func Every(p time.Duration) Schedule {
+func Every(p time.Duration) AtSchedule {
 
 	if p < time.Second {
 		p = xtime.Second
@@ -40,32 +46,41 @@ func (ps periodicSchedule) Next(t time.Time) time.Time {
 
 // At returns a schedule which reoccurs every period p, at time t(hh:ss).
 //
-// Note: At panics when period p is less than xtime.Day
+// Note: At panics when period p is less than xtime.Day, and error hh:ss format.
 func (ps periodicSchedule) At(t string) Schedule {
 	if ps.period < xtime.Day {
 		panic("period must be at least in days")
 	}
 
 	// parse t naively
+	h, s, err := parse(t)
 
-	return &atSchedule{}
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return &atSchedule{
+		period: ps.period,
+		hh:     h,
+		mm:     s,
+	}
 }
 
 // parse naively tokenises hours and seconds.
 //
 // returns error when input format was incorrect.
-func parse(hhss string) (hh int, ss int, err error) {
+func parse(hhmm string) (hh int, mm int, err error) {
 
-	hh = int(hhss[0]-'0')*10 + int(hhss[1]-'0')
-	ss = int(hhss[3]-'0')*10 + int(hhss[4]-'0')
+	hh = int(hhmm[0]-'0')*10 + int(hhmm[1]-'0')
+	mm = int(hhmm[3]-'0')*10 + int(hhmm[4]-'0')
 
 	if hh < 0 || hh > 24 {
-		hh, ss = 0, 0
+		hh, mm = 0, 0
 		err = errors.New("invalid hh format")
 	}
-	if ss < 0 || ss > 59 {
-		hh, ss = 0, 0
-		err = errors.New("invalid ss format")
+	if mm < 0 || mm > 59 {
+		hh, mm = 0, 0
+		err = errors.New("invalid mm format")
 	}
 
 	return
@@ -74,9 +89,18 @@ func parse(hhss string) (hh int, ss int, err error) {
 type atSchedule struct {
 	period time.Duration
 	hh     int
-	ss     int
+	mm     int
 }
 
+// reset returns new Date based on time instant t, and reconfigure its hh:ss
+// according to atSchedule's hh:ss.
+func (as atSchedule) reset(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), as.hh, as.mm, 0, 0, time.UTC)
+}
+
+// Next returns **next** time.
+// if t had passed its schedule, returns reset(t) + period, else returns reset(t)
 func (as atSchedule) Next(t time.Time) time.Time {
+
 	return time.Time{}
 }
