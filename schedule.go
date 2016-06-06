@@ -42,7 +42,7 @@ func (ps periodicSchedule) Next(t time.Time) time.Time {
 // Note: At panics when period p is less than xtime.Day
 func (ps periodicSchedule) At(t string) Schedule {
 	if ps.period < xtime.Day {
-		panic("period must at least in days")
+		panic("period must be at least in days")
 	}
 
 	return &atSchedule{}
