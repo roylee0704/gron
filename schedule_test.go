@@ -93,11 +93,11 @@ func TestPeriodicNext(t *testing.T) {
 func TestNaiveParse(t *testing.T) {
 
 	tests := []struct {
-		hhss   string
-		hh, ss int
+		hhmm   string
+		hh, mm int
 		err    error
 	}{
-		// sample test
+		// simple cases
 		{"10:11", 10, 11, nil},
 		{"24:44", 24, 44, nil},
 
@@ -108,19 +108,48 @@ func TestNaiveParse(t *testing.T) {
 		// edge test
 		{"25:11", 0, 0, errors.New("invalid hh format")},
 		{"25:70", 0, 0, errors.New("invalid hh format")},
-		{"24:70", 0, 0, errors.New("invalid ss format")},
+		{"24:70", 0, 0, errors.New("invalid mm format")},
 	}
 
 	for _, test := range tests {
-		h, s, err := parse(test.hhss)
-		if h != test.hh || s != test.ss {
-			t.Errorf("invalid input (%s):  (want) %d:%d != %d:%d (got)", test.hhss, test.hh, test.ss, h, s)
+		h, m, err := parse(test.hhmm)
+		if h != test.hh || m != test.mm {
+			t.Errorf("invalid input (%s):  (want) %d:%d != %d:%d (got)", test.hhmm, test.hh, test.mm, h, m)
 		}
 		if err != nil && err.Error() != test.err.Error() {
 			t.Errorf("failed to catch formatting error: %s != %s", test.err, err)
 		}
 	}
 
+}
+
+func TestAtScheduleReset(t *testing.T) {
+	tests := []struct {
+		time string
+		hhmm string
+		want string
+	}{
+		// simple cases
+		{"Mon Jun 6 22:13 2016", "10:11", "Mon Jun 6 10:11 2016"},
+
+		// reset seconds
+		{"Mon Jun 6 22:13:03 2016", "12:11", "Mon Jun 6 12:11:00 2016"},
+		{"Mon Jun 6 22:13:03.009 2016", "12:11", "Mon Jun 6 12:11:00 2016"},
+	}
+	for _, test := range tests {
+		hh, mm, _ := parse(test.hhmm)
+		as := atSchedule{
+			hh: hh,
+			mm: mm,
+		}
+
+		got := as.reset(getTime(test.time))
+		want := getTime(test.want)
+
+		if got != want {
+			t.Errorf(" (want) %v != %v (got)", want, got)
+		}
+	}
 }
 
 func getTime(value string) time.Time {
