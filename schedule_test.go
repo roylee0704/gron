@@ -19,7 +19,7 @@ func TestPeriodicNext(t *testing.T) {
 		{
 			time:   "Mon Jun 9 12:45 2016",
 			period: 15*xtime.Minute + 100*time.Nanosecond,
-			want:   "Mon Jun 9 13:01 2016",
+			want:   "Mon Jun 9 13:00 2016",
 		},
 	}
 
@@ -48,7 +48,7 @@ func getTime(value string) time.Time {
 				panic(err)
 			}
 			// Daylight savings time tests require location
-			if ny, err := time.LoadLocation("America/New_York"); err == nil {
+			if ny, err := time.LoadLocation("UTC"); err == nil {
 				t = t.In(ny)
 			}
 		}
