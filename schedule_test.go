@@ -101,6 +101,10 @@ func TestNaiveParse(t *testing.T) {
 		{"10:11", 10, 11, nil},
 		{"24:44", 24, 44, nil},
 
+		// single digit parsing
+		{"01:44", 1, 44, nil},
+		{"01:06", 1, 6, nil},
+
 		// edge test
 		{"25:11", 0, 0, errors.New("invalid hh format")},
 		{"25:70", 0, 0, errors.New("invalid hh format")},
