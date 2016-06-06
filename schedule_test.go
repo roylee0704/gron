@@ -1,6 +1,7 @@
 package gron
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -84,6 +85,35 @@ func TestPeriodicNext(t *testing.T) {
 
 		if got != want {
 			t.Errorf("case[%d], %s, \"%s\": (want) %v != %v (got)", i, test.time, test.period, want, got)
+		}
+	}
+
+}
+
+func TestNaiveParse(t *testing.T) {
+
+	tests := []struct {
+		hhss   string
+		hh, ss int
+		err    error
+	}{
+		// sample test
+		{"10:11", 10, 11, nil},
+		{"24:44", 24, 44, nil},
+
+		// edge test
+		{"25:11", 0, 0, errors.New("invalid hh format")},
+		{"25:70", 0, 0, errors.New("invalid hh format")},
+		{"24:70", 0, 0, errors.New("invalid ss format")},
+	}
+
+	for _, test := range tests {
+		h, s, err := parse(test.hhss)
+		if h != test.hh || s != test.ss {
+			t.Errorf("invalid input (%s):  (want) %d:%d != %d:%d (got)", test.hhss, test.hh, test.ss, h, s)
+		}
+		if err != nil && err.Error() != test.err.Error() {
+			t.Errorf("failed to catch formatting error: %s != %s", test.err, err)
 		}
 	}
 
