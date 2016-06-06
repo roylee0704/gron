@@ -21,7 +21,7 @@ func Every(p time.Duration) Schedule {
 		p = xtime.Second
 	}
 
-	p = p - time.Duration(p.Nanoseconds())%time.Second // round-off time.seconds
+	p = p - time.Duration(p.Nanoseconds())%time.Second // truncates up to seconds
 
 	return &periodicSchedule{
 		period: p,
