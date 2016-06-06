@@ -2,12 +2,33 @@ package gron
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/roylee0704/gron/xtime"
 )
+
+func TestPeriodicAtNext(t *testing.T) {
+
+	tests := []struct {
+		time   string
+		period time.Duration
+		hhss   string
+		want   string
+	}{
+		// simple cases
+		{"Mon Jun 6 20:00 2016", 1 * xtime.Day, "23:00", "Tue Jun 6 23:00 2016"},
+		{"Mon Jun 6 23:01 2016", 1 * xtime.Day, "23:00", "Tue Jun 7 23:00 2016"},
+	}
+
+	for _, test := range tests {
+		got := Every(test.period).At(test.hhss).Next(getTime(test.time))
+		want := getTime(test.want)
+		if got != want {
+			t.Errorf("(want) %v != %v (got)", want, got)
+		}
+	}
+}
 
 func TestPeriodicNext(t *testing.T) {
 
@@ -79,9 +100,6 @@ func TestPeriodicNext(t *testing.T) {
 
 		got := Every(test.period).Next(getTime(test.time))
 		want := getTime(test.want)
-
-		fmt.Println(got)
-		fmt.Println(want)
 
 		if got != want {
 			t.Errorf("case[%d], %s, \"%s\": (want) %v != %v (got)", i, test.time, test.period, want, got)
