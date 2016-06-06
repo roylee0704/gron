@@ -21,11 +21,11 @@ An ADT that maintains a queue of entries/jobs by time (earliest).
 ### Entry
 An ADT that keep tracks of the following states: `next`, `prev`, and `job`.
 
--**Schedule(time)**. To schedule next run, referenced from input `time`.
--**Run()**. To run the given job (go-routine), recoverable.
+- **Schedule(time)**. To schedule next run, referenced from input `time`.
+- **Run()**. To run the given job (go-routine), recoverable.
 
 ### DelayedEntry
 DelayedEntry is a type of entry which implements Entry.
 
--**Every(period)**. Create an entry with time referenced to `time.Now()`.
--**At(period)**. ignore time.Now(), create new date.
+- **Every(period)**. Create an entry with time referenced to `time.Now()`.
+- **At(period)**. ignore time.Now(), create new date.
