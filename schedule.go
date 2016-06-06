@@ -1,6 +1,10 @@
 package gron
 
-import "time"
+import (
+	"time"
+
+	"github.com/roylee0704/gron/xtime"
+)
 
 // Schedule is the interface that wraps the basic Next method.
 //
@@ -9,16 +13,18 @@ type Schedule interface {
 	Next(t time.Time) time.Time
 }
 
-// Every returns a Schedule that reoccurs in every period p, ranges from
-// xtime.Second - xtime.Week
-func Every(period time.Duration) Schedule {
+// Every returns a Schedule that adds period p to time, p must be at least
+// time.Second.
+func Every(p time.Duration) Schedule {
 
-	if period < time.Second {
-		period = time.Second
+	if p < time.Second {
+		p = xtime.Second
 	}
 
+	p = p - time.Duration(p.Nanoseconds())%time.Second // round-off time.seconds
+
 	return &periodicSchedule{
-		period: period,
+		period: p,
 	}
 }
 
@@ -27,6 +33,5 @@ type periodicSchedule struct {
 }
 
 func (ps periodicSchedule) Next(t time.Time) time.Time {
-
-	return time.Now()
+	return t.Truncate(time.Second).Add(ps.period)
 }
