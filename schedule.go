@@ -36,3 +36,22 @@ type periodicSchedule struct {
 func (ps periodicSchedule) Next(t time.Time) time.Time {
 	return t.Truncate(time.Second).Add(ps.period)
 }
+
+// At returns a schedule which reoccurs every period p, at time t.
+//
+// Note: At panics when period p is less than xtime.Day
+func (ps periodicSchedule) At(t string) Schedule {
+	if ps.period < xtime.Day {
+		panic("period must at least in days")
+	}
+
+	return &atSchedule{}
+}
+
+type atSchedule struct {
+	period time.Duration
+}
+
+func (as atSchedule) Next(t time.Time) time.Time {
+	return time.Time{}
+}
