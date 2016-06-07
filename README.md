@@ -15,10 +15,23 @@ Cron keeps track of any number of entries, invoking the associated func as
 specified by the schedule. It may also be started, stopped and the entries
 may be inspected.
 
-- **Run()**. Core functionality, run indefinitely(go-routine), multiplex different channels/signals.
-- **Add(time, job)**. Signals `add` to add entry to cron.
-- **Stop()**. Signals `stop` to halt cron processing.
+- **Start()**. Signals 'start' to get cron instant up & running.
+- **Add(time, job)**. Signals `add` to add entry to cron instant.
+- **Stop()**. Signals `stop` to halt cron instant's processing.
 - **Clear()**. Clear all entries from queue.
+- **run()**. Core functionality, run indefinitely(go-routine), multiplexing different channels/signals.
+
+
+#### Algorithm for run()
+
+1. Sort job entries chronologically.
+2. Earliest entry be taken as the next triggering point.
+3. Multiplexing of blocking channels/signals, that includes:
+   - `ready`. earliest entry is ready to be run, in which subsequent entries will be measured, for which time is up and ready, it will be run as well.
+   - `add`. add to entries.
+   - 'stop'.
+4. Repeat 1. until `stop` has signaled. 
+
 
 ### Entry
 An ADT that keep tracks of the following states: `next`, `prev`, and `job`.
