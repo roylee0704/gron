@@ -11,6 +11,9 @@ gron, Cron Jobs in Go.
 
 ### CRON
 An ADT that maintains a queue of entries/jobs, sorted by time (earliest).
+Cron keeps track of any number of entries, invoking the associated func as
+specified by the schedule. It may also be started, stopped and the entries
+may be inspected.
 
 - **Run()**. Core functionality, run indefinitely(go-routine), multiplex different channels/signals.
 - **Add(time, job)**. Signals `add` to add entry to cron.
