@@ -20,6 +20,7 @@ func New() *Cron {
 
 // Start signals cron instant c to get up and running.
 func (c *Cron) Start() {
+	c.running = true
 	go c.run()
 }
 
@@ -39,5 +40,11 @@ func (c *Cron) run() {
 
 // Stop halts cron instant c from running.
 func (c *Cron) Stop() {
+
+	if !c.running {
+		return
+	}
+
+	c.running = false
 	c.stop <- struct{}{}
 }
