@@ -1,5 +1,7 @@
 package gron
 
+import "fmt"
+
 // Cron provides a convenient interface for scheduling job such as to clean-up
 // database entry every month.
 //
@@ -7,7 +9,9 @@ package gron
 // specified by the schedule. It may also be started, stopped and the entries
 // may be inspected.
 type Cron struct {
+	entries []int
 	running bool
+	add     chan int
 	stop    chan struct{}
 }
 
@@ -15,6 +19,7 @@ type Cron struct {
 func New() *Cron {
 	return &Cron{
 		stop: make(chan struct{}),
+		add:  make(chan int),
 	}
 }
 
@@ -32,10 +37,26 @@ func (c *Cron) run() {
 
 	for {
 		select {
+		case i := <-c.add:
+			c.entries = append(c.entries, i)
 		case <-c.stop:
-			return // terminate go-routine.
+			fmt.Println("stopped")
+			// terminate go-routine.
 		}
 	}
+
+}
+
+// Add appends item to entries.
+//
+// if cron instant is not running, adding to entries is trivial.
+// otherwise, to prevent data-race, adds through channel.
+func (c *Cron) Add(i int) {
+
+	if !c.running {
+		c.entries = append(c.entries, i)
+	}
+	c.add <- i
 }
 
 // Stop halts cron instant c from running.
@@ -44,7 +65,7 @@ func (c *Cron) Stop() {
 	if !c.running {
 		return
 	}
-
 	c.running = false
 	c.stop <- struct{}{}
+
 }
