@@ -53,7 +53,7 @@ func (ps periodicSchedule) At(t string) Schedule {
 	}
 
 	// parse t naively
-	h, s, err := parse(t)
+	h, m, err := parse(t)
 
 	if err != nil {
 		panic(err.Error())
@@ -62,7 +62,7 @@ func (ps periodicSchedule) At(t string) Schedule {
 	return &atSchedule{
 		period: ps.period,
 		hh:     h,
-		mm:     s,
+		mm:     m,
 	}
 }
 
