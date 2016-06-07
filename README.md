@@ -17,7 +17,7 @@ may be inspected.
 
 - **Start()**. Signals 'start' to get cron instant up & running.
 - **Add(time, job)**. Signals `add` to add entry to cron instant.
-- **Stop()**. Signals `stop` to halt cron instant's processing.
+- **Stop()**. Signals `stop` to halt cron instant's processing. Bear in mind that running jobs will not be halted.
 - **Clear()**. Clear all entries from queue.
 - **run()**. Core functionality, run indefinitely(go-routine), multiplexing different channels/signals.
 
