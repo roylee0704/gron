@@ -29,8 +29,8 @@ may be inspected.
 3. Multiplexing of blocking channels/signals, that includes:
    - `ready`. earliest entry is ready to be run, in which subsequent entries will be measured, for which time is up and ready, it will be run as well.
    - `add`. add to entries.
-   - 'stop'.
-4. Repeat 1. until `stop` has signaled. 
+   - `'`stop`.
+4. Repeat 1. until `stop` is signaled.
 
 
 ### Entry
