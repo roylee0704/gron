@@ -33,15 +33,17 @@ may be inspected.
 4. Repeat 1. until `stop` is signaled.
 
 
-### Entry
-An ADT that keep tracks of the following states: `next`, `prev`, and `job`.
+### ENTRY
+An ADT that consists of a schedule and job to be run on that schedule. It keep tracks on the following states: `schedule`, `job`, `next`, 'prev'.
 
-- **Schedule(time)**. To schedule next run, referenced from input `time`.
-- **Run()**. To run the given job (go-routine), recoverable.
+
+### JOB
+An interface which wraps `Run` method.
+- **Run()**. To execute the underlying func.
 
 ### Schedule
 An interface which wraps `Next(time)` method.
-- **Next(time)**. Deduces next occurring event w.r.t time instant t.
+- **Next(time)**. Deduces next occurring schedule w.r.t time instant t.
 
 ### periodicSchedule
 A periodic schedule which occurs periodically. `t + period`
