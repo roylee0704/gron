@@ -178,12 +178,24 @@ func getTime(value string) time.Time {
 	if err != nil {
 		t, err = time.Parse("Mon Jan 2 15:04:05 2006", value)
 		if err != nil {
-			t, err = time.Parse("2006-01-02T15:04:05-0700", value)
+			t, err = time.Parse("2006-01-02 15:04", value)
 			if err != nil {
-				panic(err)
-			}
-			if loc, err := time.LoadLocation("UTC"); err == nil {
-				t = t.In(loc)
+				t, err = time.Parse("2006-01-02 15:04:05", value)
+				if err != nil {
+					t, err = time.Parse("15:04", value)
+					if err != nil {
+						t, err = time.Parse("15:04:05", value)
+						if err != nil {
+							t, err = time.Parse("2006-01-02T15:04:05-0700", value)
+							if err != nil {
+								panic(err)
+							}
+							if loc, err := time.LoadLocation("UTC"); err == nil {
+								t = t.In(loc)
+							}
+						}
+					}
+				}
 			}
 		}
 	}
