@@ -33,7 +33,7 @@ An interface which wraps `Next(time)` method.
 
 ## Detailed Design
 
-### Core Algorithm: CRON.run()
+### Cron: run() -- The core.
 1. Sort entries chronologically.
 2. Earliest entry be taken as the next triggering point.
 3. Multiplexing of blocking channels/signals, that includes:
@@ -42,7 +42,7 @@ An interface which wraps `Next(time)` method.
    - `stop`.
 4. Repeat 1. until `stop` is signaled.
 
-### Sorted: Entry Slice
+### Entry: Sorted entry-slice
 Entry slice implements sort package, chronologically.
 
 
