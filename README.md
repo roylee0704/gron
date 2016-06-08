@@ -13,22 +13,10 @@ gron, Cron Jobs in Go.
 An ADT that maintains a queue of entries/jobs, sorted by time (earliest). Cron keeps track of any number of entries, invoking the associated func as specified by the schedule. It may also be started, stopped and the entries may be inspected.
 
 - **Start()**. Signals 'start' to get cron instant up & running.
-- **Add(schedule, job)**. Signals `add` to add entry to cron instant.
+- **Add(entry)**. Signals `add` to add entry to cron instant.
 - **Stop()**. Signals `stop` to halt cron instant's processing. Bear in mind that (child go-routines) running jobs will be halted as well.
 - **Clear()**. Clear all entries from queue.
 - **run()**. Core functionality, run indefinitely(go-routine), forking out child go-routine: one for each job, multiplexing different channels/signals.
-
-
-#### Algorithm for run()
-
-1. Sort job entries chronologically.
-2. Earliest entry be taken as the next triggering point.
-3. Multiplexing of blocking channels/signals, that includes:
-   - `ready`. earliest entry is ready to be run, in which subsequent entries will be measured, for which time is up and ready, it will be run as well.
-   - `add`. add to entries.
-   - `stop`.
-4. Repeat 1. until `stop` is signaled.
-
 
 ### ENTRY
 An ADT that consists of a schedule and job to be run on that schedule. It keep tracks on the following states: `schedule`, `job`, `next`, `prev`.
@@ -42,5 +30,20 @@ An interface which wraps `Next(time)` method.
 - **Next(time)**. Deduces next occurring schedule w.r.t time instant t.
 
 ### periodicSchedule
-A periodic schedule which occurs periodically. `t + period`
+A periodic schedule which occurs periodically: `t + period`
 - **Every(period)**. Returns a periodicSchedule instant.
+
+
+## Detailed Design
+
+### Core Algorithm: CRON.run()
+1. Sort entries chronologically.
+2. Earliest entry be taken as the next triggering point.
+3. Multiplexing of blocking channels/signals, that includes:
+   - `ready`. earliest entry is ready to be run, in which subsequent entries will be measured, for which time is up and ready, it will be run as well.
+   - `add`. add to entries.
+   - `stop`.
+4. Repeat 1. until `stop` is signaled.
+
+### Sorted: Entry Slice
+Entry slice implements sort package, chronologically.
