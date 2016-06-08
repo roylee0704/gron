@@ -34,8 +34,7 @@ may be inspected.
 
 
 ### ENTRY
-An ADT that consists of a schedule and job to be run on that schedule. It keep tracks on the following states: `schedule`, `job`, `next`, 'prev'.
-
+An ADT that consists of a schedule and job to be run on that schedule. It keep tracks on the following states: `schedule`, `job`, `next`, `prev`.
 
 ### JOB
 An interface which wraps `Run` method.
