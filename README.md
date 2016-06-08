@@ -31,11 +31,6 @@ An interface which wraps `Run` method.
 An interface which wraps `Next(time)` method.
 - **Next(time)**. Deduces next occurring schedule w.r.t time instant t.
 
-### periodicSchedule
-A periodic schedule which occurs periodically: `t + period`
-- **Every(period)**. Returns a periodicSchedule instant.
-
-
 ## Detailed Design
 
 ### Core Algorithm: CRON.run()
@@ -49,3 +44,8 @@ A periodic schedule which occurs periodically: `t + period`
 
 ### Sorted: Entry Slice
 Entry slice implements sort package, chronologically.
+
+
+### Schedule: periodicSchedule
+A periodic schedule which occurs periodically: `t + period`
+- **Every(period)**. Returns a periodicSchedule instant.
