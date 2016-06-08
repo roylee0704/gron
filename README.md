@@ -13,27 +13,27 @@ gron, Cron Jobs in Go.
 An ADT that maintains a queue of chronologically sorted entries. Cron keeps track of any number of entries, invoking the associated func as specified by the schedule. It may also be started, stopped and the entries may be inspected.
 
 - **Start()**. Signals 'start' to get cron instant up & running.
-- **Add(entry)**. Signals `add` to add entry to cron instant.
+- **Add(schedule, job)**. Signals `add` to add entry(schedule, job) to cron instant.
 - **Stop()**. Signals `stop` to halt cron instant's processing. Bear in mind that (child go-routines) running jobs will be halted as well.
 - **Clear()**. Clear all entries from queue.
 - **run()**. Core functionality, run indefinitely(go-routine), forking out child go-routine: one for each job, multiplexing different channels/signals.
+
+### SCHEDULE
+An interface which wraps `Next(time)` method.
+- **Next(time)**. Deduces next occurring schedule w.r.t time instant t.
+
+### JOB
+An interface which wraps `Run` method.
+- **Run()**. To execute the underlying func.
 
 ### ENTRY
 An ADT consists of a schedule and job to be run on that schedule. Also known as wrapper to `schedule` and `job`.
 
 It keep tracks on the following states: `schedule`, `job`, `next`, `prev`.
 
-### JOB
-An interface which wraps `Run` method.
-- **Run()**. To execute the underlying func.
-
-### SCHEDULE
-An interface which wraps `Next(time)` method.
-- **Next(time)**. Deduces next occurring schedule w.r.t time instant t.
-
 ## Detailed Design
 
-### Cron: run() -- The core.
+### Cron: run() -- **core**
 1. Sort entries chronologically.
 2. Earliest entry be taken as the next triggering point.
 3. Multiplexing of blocking channels/signals, that includes:
