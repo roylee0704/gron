@@ -19,7 +19,7 @@ An ADT that maintains a queue of entries/jobs, sorted by time (earliest). Cron k
 - **run()**. Core functionality, run indefinitely(go-routine), forking out child go-routine: one for each job, multiplexing different channels/signals.
 
 ### ENTRY
-An ADT that consists of a schedule and job to be run on that schedule. It keep tracks on the following states: `schedule`, `job`, `next`, `prev`.
+An ADT that consists of a schedule and job to be run on that schedule. It keep tracks on the following states: `schedule`, `job`, `next`, `prev`. Also known as wrapper to `schedule` and `job`.
 
 ### JOB
 An interface which wraps `Run` method.
