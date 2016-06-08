@@ -37,7 +37,7 @@ An ADT that consists of a schedule and job to be run on that schedule. It keep t
 An interface which wraps `Run` method.
 - **Run()**. To execute the underlying func.
 
-### Schedule
+### SCHEDULE
 An interface which wraps `Next(time)` method.
 - **Next(time)**. Deduces next occurring schedule w.r.t time instant t.
 
