@@ -16,6 +16,21 @@ type Entry struct {
 	Prev time.Time
 }
 
+// byTime is a handy wrapper to chronologically sort entries.
+type byTime []Entry
+
+func (b byTime) Len() int      { return len(b) }
+func (b byTime) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
+// Less bubbles late time & zero time to the back of queue.
+func (b byTime) Less(i, j int) bool {
+
+	if b[i].Next.IsZero() {
+		return false
+	}
+	return b[i].Next.Before(b[j].Next)
+}
+
 // Job is the interface that wraps the basic Run method.
 //
 // Run executes the underlying func.
