@@ -1,6 +1,27 @@
 package gron
 
-import "fmt"
+import "time"
+
+// Entry consists of a schedule and the job to be executed on that schedule.
+type Entry struct {
+	Schedule Schedule
+	Job      Job
+
+	// the next time the job will run. This is zero time if Cron has not been
+	// started or invalid schedule.
+	Next time.Time
+
+	// the last time the job was run. This is zero time if the job has not been
+	// run.
+	Prev time.Time
+}
+
+// Job is the interface that wraps the basic Run method.
+//
+// Run executes the underlying func.
+type Job interface {
+	Run()
+}
 
 // Cron provides a convenient interface for scheduling job such as to clean-up
 // database entry every month.
@@ -9,9 +30,9 @@ import "fmt"
 // specified by the schedule. It may also be started, stopped and the entries
 // may be inspected.
 type Cron struct {
-	entries []int
+	entries []*Entry
 	running bool
-	add     chan int
+	add     chan *Entry
 	stop    chan struct{}
 }
 
@@ -19,7 +40,7 @@ type Cron struct {
 func New() *Cron {
 	return &Cron{
 		stop: make(chan struct{}),
-		add:  make(chan int),
+		add:  make(chan *Entry),
 	}
 }
 
@@ -27,6 +48,33 @@ func New() *Cron {
 func (c *Cron) Start() {
 	c.running = true
 	go c.run()
+}
+
+// Add appends schedule, job to entries.
+//
+// if cron instant is not running, adding to entries is trivial.
+// otherwise, to prevent data-race, adds through channel.
+func (c *Cron) Add(s Schedule, j Job) {
+
+	entry := &Entry{
+		Schedule: s,
+		Job:      j,
+	}
+
+	if !c.running {
+		c.entries = append(c.entries, entry)
+	}
+	c.add <- entry
+}
+
+// Stop halts cron instant c from running.
+func (c *Cron) Stop() {
+
+	if !c.running {
+		return
+	}
+	c.running = false
+	c.stop <- struct{}{}
 }
 
 // run the scheduler...
@@ -40,32 +88,7 @@ func (c *Cron) run() {
 		case i := <-c.add:
 			c.entries = append(c.entries, i)
 		case <-c.stop:
-			fmt.Println("stopped")
-			// terminate go-routine.
+			return // terminate go-routine.
 		}
 	}
-
-}
-
-// Add appends item to entries.
-//
-// if cron instant is not running, adding to entries is trivial.
-// otherwise, to prevent data-race, adds through channel.
-func (c *Cron) Add(i int) {
-
-	if !c.running {
-		c.entries = append(c.entries, i)
-	}
-	c.add <- i
-}
-
-// Stop halts cron instant c from running.
-func (c *Cron) Stop() {
-
-	if !c.running {
-		return
-	}
-	c.running = false
-	c.stop <- struct{}{}
-
 }
