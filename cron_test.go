@@ -90,11 +90,11 @@ func TestByTimeSort(t *testing.T) {
 	}
 }
 
-func mockEntries(nexts []time.Time) []Entry {
-	var entries []Entry
+func mockEntries(nexts []time.Time) []*Entry {
+	var entries []*Entry
 
 	for _, n := range nexts {
-		entries = append(entries, Entry{Next: n})
+		entries = append(entries, &Entry{Next: n})
 	}
 	return entries
 }
@@ -112,7 +112,7 @@ func getTimes(s string) []time.Time {
 }
 
 // wrapper to stringify time instant t
-type toS []Entry
+type toS []*Entry
 
 func (entries toS) String() string {
 	var ret string

@@ -17,7 +17,7 @@ type Entry struct {
 }
 
 // byTime is a handy wrapper to chronologically sort entries.
-type byTime []Entry
+type byTime []*Entry
 
 func (b byTime) Len() int      { return len(b) }
 func (b byTime) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
@@ -104,6 +104,7 @@ func (c *Cron) Stop() {
 func (c *Cron) run() {
 
 	for {
+
 		select {
 		case i := <-c.add:
 			c.entries = append(c.entries, i)
