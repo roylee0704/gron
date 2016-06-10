@@ -86,6 +86,7 @@ func (c *Cron) Add(s Schedule, j Job) {
 
 	if !c.running {
 		c.entries = append(c.entries, entry)
+		return
 	}
 	c.add <- entry
 }
