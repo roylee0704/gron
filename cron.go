@@ -1,6 +1,9 @@
 package gron
 
-import "time"
+import (
+	"sort"
+	"time"
+)
 
 // Entry consists of a schedule and the job to be executed on that schedule.
 type Entry struct {
@@ -87,6 +90,11 @@ func (c *Cron) Add(s Schedule, j Job) {
 	c.add <- entry
 }
 
+// AddFunc
+func (c *Cron) AddFunc(s Schedule, j func()) {
+	c.Add(s, JobFunc(j))
+}
+
 // Stop halts cron instant c from running.
 func (c *Cron) Stop() {
 
@@ -103,13 +111,42 @@ func (c *Cron) Stop() {
 // shared state: `running`.
 func (c *Cron) run() {
 
+	var effective time.Time
+
+	for _, e := range c.entries {
+		e.Next = e.Schedule.Next(time.Now())
+	}
+
 	for {
 
+		sort.Sort(byTime(c.entries))
+		if len(c.entries) > 0 {
+			effective = c.entries[0].Next
+		}
+
 		select {
-		case i := <-c.add:
-			c.entries = append(c.entries, i)
+		case now := <-time.After(effective.Sub(time.Now())):
+			go c.entries[0].Job.Run()
+			c.entries[0].Prev = now
+			c.entries[0].Next = c.entries[0].Schedule.Next(now)
+
+		case e := <-c.add:
+			e.Next = e.Schedule.Next(time.Now())
+			c.entries = append(c.entries, e)
 		case <-c.stop:
 			return // terminate go-routine.
 		}
 	}
+}
+
+// JobFunc is an adapter to allow the use of ordinary functions as gron.Job
+// If f is a function with the appropriate signature, JobFunc(f) is a handler
+// that calls f.
+//
+// todo: possibly func with params? maybe not needed.
+type JobFunc func()
+
+// Run calls j()
+func (j JobFunc) Run() {
+	j()
 }

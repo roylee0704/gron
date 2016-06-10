@@ -9,6 +9,30 @@ import (
 	"time"
 )
 
+// Most cron tests are expected to trigger after 1 second.
+// We fail tests right after OneSecond: 1.01 seconds.
+const OneSecond = 1*time.Second + 10*time.Millisecond
+
+// start a cron, add a job, expect it runs
+func TestAddWhileRun(t *testing.T) {
+
+	done := make(chan struct{})
+
+	cron := New()
+	cron.Start()
+	defer cron.Stop()
+
+	cron.AddFunc(Every(1*time.Second), func() {
+		done <- struct{}{}
+	})
+
+	select {
+	case <-done:
+	case <-time.After(OneSecond):
+		t.FailNow()
+	}
+}
+
 // Test that invoking stop() before start() silently returns,
 // without blocking the stop channel
 func TestStopWithoutStart(t *testing.T) {
