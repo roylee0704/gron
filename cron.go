@@ -90,7 +90,7 @@ func (c *Cron) Add(s Schedule, j Job) {
 	c.add <- entry
 }
 
-// AddFunc
+// AddFunc registers the Job function for the given Schedule.
 func (c *Cron) AddFunc(s Schedule, j func()) {
 	c.Add(s, JobFunc(j))
 }
