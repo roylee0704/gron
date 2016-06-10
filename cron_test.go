@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -12,6 +13,36 @@ import (
 // Most cron tests are expected to trigger after 1 second.
 // We fail tests after OneSecond: 1.01 seconds.
 const OneSecond = 1*time.Second + 10*time.Millisecond
+
+func TestMultipleSchedules(t *testing.T) {
+
+	wg := &sync.WaitGroup{}
+	wg.Add(3)
+	cron := New()
+	cron.AddFunc(Every(1*time.Second), func() { fmt.Println("1"); wg.Done() })
+	cron.AddFunc(Every(1*time.Second), func() { fmt.Println("2"); wg.Done() })
+	cron.AddFunc(Every(1*time.Second), func() { fmt.Println("3"); wg.Done() })
+
+	cron.Start()
+	defer cron.Stop()
+
+	select {
+	case <-wait(wg):
+	case <-time.After(OneSecond):
+		t.FailNow()
+	}
+
+}
+
+func wait(wg *sync.WaitGroup) <-chan bool {
+	done := make(chan bool)
+
+	go func() {
+		wg.Wait()
+		done <- true
+	}()
+	return done
+}
 
 // add a job, start a cron, expect it runs
 func TestAddBeforeRun(t *testing.T) {
