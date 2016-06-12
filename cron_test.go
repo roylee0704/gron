@@ -19,9 +19,9 @@ func TestMultipleSchedules(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(3)
 	cron := New()
-	cron.AddFunc(Every(1*time.Second), func() { fmt.Println("1"); wg.Done() })
-	cron.AddFunc(Every(1*time.Second), func() { fmt.Println("2"); wg.Done() })
-	cron.AddFunc(Every(1*time.Second), func() { fmt.Println("3"); wg.Done() })
+	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
+	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
+	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
 
 	cron.Start()
 	defer cron.Stop()
@@ -48,9 +48,7 @@ func wait(wg *sync.WaitGroup) <-chan bool {
 func TestAddBeforeRun(t *testing.T) {
 	done := make(chan struct{})
 	cron := New()
-	cron.AddFunc(Every(1*time.Second), func() {
-		done <- struct{}{}
-	})
+	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
 	cron.Start()
 	defer cron.Stop()
 
@@ -69,9 +67,7 @@ func TestAddWhileRun(t *testing.T) {
 	cron.Start()
 	defer cron.Stop()
 
-	cron.AddFunc(Every(1*time.Second), func() {
-		done <- struct{}{}
-	})
+	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
 
 	select {
 	case <-done:
