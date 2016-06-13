@@ -32,6 +32,7 @@ import (
 func main() {
 	c := gron.New()
 	c.AddFunc(gron.Every(3 * time.Hour), func() { fmt.Print("Runs every 3 hour") })
+	c.Start()
 }
 ```
 
@@ -42,12 +43,18 @@ Gron currently ships with just 1 job type: runner. You can define your own by im
 For example:
 
 ```go
-type Reminder struct { ... }
+type Reminder struct {
+	Msg string
+}
 
-func (r *Reminder) Run() {
-  r.send()
+func (r Reminder) Run() {
+  fmt.Println(r.Msg)
 }
 
 c := gron.New()
-c.Add(gron.Every(5 * time.Hour), Reminder{ ... })
+r := Reminder{ "Feed the baby!" }
+c.Add(gron.Every(30 * time.Minute), r)
+c.Start()
 ```
+
+### Jobs may be added to running cron. 
