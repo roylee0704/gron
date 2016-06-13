@@ -41,7 +41,6 @@ func TestJobDontRunAfterStop(t *testing.T) {
 		t.FailNow()
 	case <-time.After(OneSecond):
 	}
-
 }
 
 // Test that after first entry has run, subsequent entries are checked and run
