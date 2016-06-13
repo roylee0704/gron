@@ -26,6 +26,24 @@ func TestNoEntries(t *testing.T) {
 	}
 }
 
+// start cron, stop cron, add a job, job shouldn't run.
+func TestJobDontRunAfterStop(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	cron := New()
+	cron.Start()
+	cron.Stop()
+	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
+
+	select {
+	case <-wait(wg):
+		t.FailNow()
+	case <-time.After(OneSecond):
+	}
+
+}
+
 // Test that after first entry has run, subsequent entries are checked and run
 // if possessed same schedule as first entry.
 func TestConcurrentSchedules(t *testing.T) {
