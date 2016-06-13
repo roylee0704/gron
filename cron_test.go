@@ -140,9 +140,8 @@ func (j arbitraryJob) Run() {
 
 // simple test on job implemeter
 func TestJobImplementer(t *testing.T) {
-
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 
 	cron := New()
 	cron.Add(Every(7*xtime.Day), arbitraryJob{wg, "job-1"}) // merely distraction
