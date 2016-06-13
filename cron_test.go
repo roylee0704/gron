@@ -85,6 +85,7 @@ func TestJobsDontRunAfterStop(t *testing.T) {
 	}
 }
 
+// Test that entries are sorted correctly.
 // Adds an immediate entry, make sure it runs immediately.
 // Subsequent entries are checked and run at same instant, iff possessed
 // same schedule as first entry.
@@ -109,7 +110,7 @@ func TestMultipleEntries(t *testing.T) {
 	}
 }
 
-// Test that periodic job runs again, after p interval.
+// Test that job runs n times after (n * p) period.
 func TestRunJobTwice(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
