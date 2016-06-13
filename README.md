@@ -3,17 +3,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/roylee0704/gron)](https://goreportcard.com/report/github.com/roylee0704/gron)
 [![GoDoc](https://godoc.org/github.com/roylee0704/gron?status.svg)](https://godoc.org/github.com/roylee0704/gron)
 
-gron, Cron Jobs in Go. Gron provides a clear syntax for writing and deploying cron jobs.
+Gron provides a clear syntax for writing and deploying cron jobs.
 
-# Features
-
-- A simple to use API for scheduling jobs.
-- Minimalist and no external dependencies.
-- Thread safety.
-- Excellent test coverage.
-- Tested on Golang >= 1.5
-
-# Quick Start
 ## Installation
 
 ```sh
@@ -30,10 +21,26 @@ import (
 	"fmt"
 	"time"
 	"github.com/roylee0704/gron"
+	"github.com/roylee0704/gron/xtime"
 )
 
 func main() {
 	c := gron.New()
-	c.AddFunc(gron.Every(30*time.Minute), func() { fmt.Print("Every half and hour") })
+	c.AddFunc(gron.Every(3*time.Hour), func() { fmt.Print("Runs every 3 hour") })
+
+	c.AddFunc(gron.Every(1*xtime.Day).At("04:30"), func() { fmt.Print("Runs at 4:30 in the morning")})
 }
 ```
+
+### Define your own job types
+Gron currently ships with just 1 job type: runner. You can define your own by implementing `gron.Job` interface.
+
+
+For example:
+
+```go
+type Party struct { funLevel string }
+
+func (p *Party) Run() {
+  fmt.Println(p.funLevel)
+}```
