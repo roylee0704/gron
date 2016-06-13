@@ -14,10 +14,21 @@ import (
 // Test expects to fail after OneSecond: 1.01 seconds.
 const OneSecond = 1*time.Second + 10*time.Millisecond
 
+// start cron, stop cron successfully.
+func TestNoEntries(t *testing.T) {
+	cron := New()
+	cron.Start()
+
+	select {
+	case <-time.After(OneSecond):
+		t.FailNow()
+	case <-stop(cron):
+	}
+}
+
 // Test that after first entry has run, subsequent entries are checked and run
 // if possessed same schedule as first entry.
 func TestConcurrentSchedules(t *testing.T) {
-
 	wg := &sync.WaitGroup{}
 	wg.Add(3)
 	cron := New()
@@ -31,23 +42,11 @@ func TestConcurrentSchedules(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-wait(wg):
 	case <-time.After(OneSecond):
 		t.FailNow()
+	case <-wait(wg):
 	}
 
-}
-
-// wait is a helper function that returns a signal upon WaitGroup instant wg
-// receives all feedback.
-func wait(wg *sync.WaitGroup) <-chan bool {
-	done := make(chan bool)
-
-	go func() {
-		wg.Wait()
-		done <- true
-	}()
-	return done
 }
 
 // add a job, start a cron, expect it runs
@@ -59,9 +58,9 @@ func TestAddBeforeRun(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-done:
 	case <-time.After(OneSecond):
 		t.FailNow()
+	case <-done:
 	}
 }
 
@@ -76,9 +75,9 @@ func TestAddWhileRun(t *testing.T) {
 	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
 
 	select {
-	case <-done:
 	case <-time.After(OneSecond):
 		t.FailNow()
+	case <-done:
 	}
 }
 
@@ -193,4 +192,24 @@ func (entries toS) String() string {
 		ret += fmt.Sprintf("[%v] ", e.Next)
 	}
 	return ret
+}
+
+// wait signals back when WaitGroup has wait().
+func wait(wg *sync.WaitGroup) <-chan bool {
+	done := make(chan bool)
+	go func() {
+		wg.Wait()
+		done <- true
+	}()
+	return done
+}
+
+// stop signals back when cron has stop()
+func stop(c *Cron) <-chan bool {
+	done := make(chan bool)
+	go func() {
+		c.Stop()
+		done <- true
+	}()
+	return done
 }
