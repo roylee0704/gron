@@ -186,7 +186,7 @@ func TestEntryOrdering(t *testing.T) {
 
 	want := []string{"job-2", "job-5", "job-4", "job-1", "job-3"}
 	var got []string
-	for _, e := range cron.entries {
+	for _, e := range cron.Entries() {
 		got = append(got, e.Job.(arbitraryJob).id)
 	}
 

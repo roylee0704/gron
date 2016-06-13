@@ -147,6 +147,11 @@ func (c *Cron) run() {
 	}
 }
 
+// Entries returns cron entries.
+func (c Cron) Entries() []*Entry {
+	return c.entries
+}
+
 // JobFunc is an adapter to allow the use of ordinary functions as gron.Job
 // If f is a function with the appropriate signature, JobFunc(f) is a handler
 // that calls f.
