@@ -7,7 +7,7 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 
 ## Goals
 
-- A simple to use API for scheduling jobs.
+- Minimalist APIs for scheduling jobs.
 - Thread safety.
 - Ability to define own job type.
 
