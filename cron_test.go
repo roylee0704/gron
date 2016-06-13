@@ -125,6 +125,40 @@ func TestRunJobTwice(t *testing.T) {
 	}
 }
 
+// arbitrary job struct, with god's view enabled.
+type arbitraryJob struct {
+	wg *sync.WaitGroup // god's update
+	id string          // god's record
+}
+
+// implements runnable
+func (j arbitraryJob) Run() {
+	if j.wg != nil {
+		j.wg.Done()
+	}
+}
+
+// simple test on job implemeter
+func TestJobImplementer(t *testing.T) {
+
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	cron := New()
+	cron.Add(Every(7*xtime.Day), arbitraryJob{wg, "job-1"}) // merely distraction
+	cron.Add(Every(1*time.Second), arbitraryJob{wg, "job-2"})
+	cron.Add(Every(1*xtime.Week), arbitraryJob{wg, "job-3"}) // merely distraction
+
+	cron.Start()
+	defer cron.Stop()
+
+	select {
+	case <-time.After(2 * OneSecond):
+		t.FailNow()
+	case <-wait(wg):
+	}
+}
+
 // Test that entries are chronologically sorted
 func TestByTimeSort(t *testing.T) {
 	tests := []struct {
