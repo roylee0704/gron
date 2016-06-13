@@ -31,7 +31,7 @@ import (
 
 func main() {
 	c := gron.New()
-	c.AddFunc(gron.Every(3*time.Hour), func() { fmt.Print("Runs every 3 hour") })
+	c.AddFunc(gron.Every(3 * time.Hour), func() { fmt.Print("Runs every 3 hour") })
 }
 ```
 
@@ -47,4 +47,7 @@ type Reminder struct { ... }
 func (r *Reminder) Run() {
   r.send()
 }
+
+c := gron.New()
+c.Add(gron.Every(5 * time.Hour), Reminder{ ... })
 ```
