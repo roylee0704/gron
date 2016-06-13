@@ -106,7 +106,7 @@ func TestConcurrentSchedules(t *testing.T) {
 }
 
 // Test that periodic job runs again, after p interval.
-func TestJobRunTwice(t *testing.T) {
+func TestRunJobTwice(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
