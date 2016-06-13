@@ -8,6 +8,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/roylee0704/gron/xtime"
 )
 
 // Most test jobs scheduled to run at second 1.
@@ -98,6 +100,26 @@ func TestConcurrentSchedules(t *testing.T) {
 
 	select {
 	case <-time.After(OneSecond):
+		t.FailNow()
+	case <-wait(wg):
+	}
+}
+
+// Test that periodic job runs again, after p interval.
+func TestJobRunTwice(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+
+	cron := New()
+	cron.Start()
+	defer cron.Stop()
+
+	cron.AddFunc(Every(1*xtime.Day), func() { wg.Done() })
+	cron.AddFunc(Every(1*xtime.Week), func() { wg.Done() })
+	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
+
+	select {
+	case <-time.After(2 * OneSecond):
 		t.FailNow()
 	case <-wait(wg):
 	}
