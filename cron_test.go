@@ -144,7 +144,7 @@ func TestJobImplementer(t *testing.T) {
 	wg.Add(2)
 
 	cron := New()
-	cron.Add(Every(7*xtime.Day), arbitraryJob{wg, "job-1"}) // merely distraction
+	cron.Add(Every(1*xtime.Day), arbitraryJob{wg, "job-1"}) // merely distraction
 	cron.Add(Every(1*time.Second), arbitraryJob{wg, "job-2"})
 	cron.Add(Every(1*xtime.Week), arbitraryJob{wg, "job-3"}) // merely distraction
 
@@ -155,6 +155,41 @@ func TestJobImplementer(t *testing.T) {
 	case <-time.After(2 * OneSecond):
 		t.FailNow()
 	case <-wait(wg):
+	}
+}
+
+// Test that entries are in correct sequence after n run.
+func TestEntryOrdering(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+
+	cron := New()
+
+	cron.Add(Every(40*time.Second), arbitraryJob{wg, "job-1"})
+	cron.Add(Every(1*time.Second), arbitraryJob{wg, "job-2"})
+	cron.Add(Every(1*xtime.Week), arbitraryJob{wg, "job-3"})
+	cron.Add(Every(12*time.Second), arbitraryJob{wg, "job-4"})
+	cron.Add(Every(8*time.Second), arbitraryJob{wg, "job-5"})
+
+	cron.Start()
+	select {
+	case <-time.After(2 * OneSecond):
+		t.FailNow()
+	case <-wait(wg):
+	}
+	cron.Stop()
+
+	want := []string{"job-2", "job-5", "job-4", "job-1", "job-3"}
+	var got []string
+	for _, e := range cron.entries {
+		got = append(got, e.Job.(arbitraryJob).id)
+	}
+
+	for i := range got {
+		if want[i] != got[i] {
+			t.Errorf("incorrect sequencing: (want) %q != %q (got)", want, got)
+			break
+		}
 	}
 }
 
