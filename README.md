@@ -21,14 +21,11 @@ import (
 	"fmt"
 	"time"
 	"github.com/roylee0704/gron"
-	"github.com/roylee0704/gron/xtime"
 )
 
 func main() {
 	c := gron.New()
 	c.AddFunc(gron.Every(3*time.Hour), func() { fmt.Print("Runs every 3 hour") })
-
-	c.AddFunc(gron.Every(1*xtime.Day).At("04:30"), func() { fmt.Print("Runs at 4:30 in the morning")})
 }
 ```
 
