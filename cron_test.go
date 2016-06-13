@@ -26,6 +26,44 @@ func TestNoEntries(t *testing.T) {
 	}
 }
 
+// add a job, start a cron, expect it runs
+func TestAddBeforeRun(t *testing.T) {
+	done := make(chan struct{})
+	cron := New()
+	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
+	cron.Start()
+	defer cron.Stop()
+
+	select {
+	case <-time.After(OneSecond):
+		t.FailNow()
+	case <-done:
+	}
+}
+
+// start a cron, add a job, expect it runs
+func TestAddWhileRun(t *testing.T) {
+	done := make(chan struct{})
+	cron := New()
+	cron.Start()
+	defer cron.Stop()
+
+	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
+
+	select {
+	case <-time.After(OneSecond):
+		t.FailNow()
+	case <-done:
+	}
+}
+
+// Test that invoking stop() before start() silently returns,
+// without blocking the stop channel
+func TestStopWithoutStart(t *testing.T) {
+	cron := New()
+	cron.Stop()
+}
+
 // start cron, stop cron, add a job, job shouldn't run.
 func TestJobDontRunAfterStop(t *testing.T) {
 	wg := &sync.WaitGroup{}
@@ -63,45 +101,6 @@ func TestConcurrentSchedules(t *testing.T) {
 		t.FailNow()
 	case <-wait(wg):
 	}
-}
-
-// add a job, start a cron, expect it runs
-func TestAddBeforeRun(t *testing.T) {
-	done := make(chan struct{})
-	cron := New()
-	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
-	cron.Start()
-	defer cron.Stop()
-
-	select {
-	case <-time.After(OneSecond):
-		t.FailNow()
-	case <-done:
-	}
-}
-
-// start a cron, add a job, expect it runs
-func TestAddWhileRun(t *testing.T) {
-
-	done := make(chan struct{})
-	cron := New()
-	cron.Start()
-	defer cron.Stop()
-
-	cron.AddFunc(Every(1*time.Second), func() { done <- struct{}{} })
-
-	select {
-	case <-time.After(OneSecond):
-		t.FailNow()
-	case <-done:
-	}
-}
-
-// Test that invoking stop() before start() silently returns,
-// without blocking the stop channel
-func TestStopWithoutStart(t *testing.T) {
-	cron := New()
-	cron.Stop()
 }
 
 // Test that entries are chronologically sorted
