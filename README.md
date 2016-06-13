@@ -10,7 +10,7 @@ gron, Cron Jobs in Go.
 ## Design Specs
 
 ### CRON
-An ADT that maintains a queue of chronologically sorted entries. Cron keeps track of any number of entries, invoking the associated func as specified by the schedule. It may also be started, stopped and the entries may be inspected.
+An ADT that maintains a sequence of chronologically sorted entries. Cron keeps track of any number of entries, invoking the associated func as specified by the schedule. It may also be started, stopped and the entries may be inspected.
 
 - **Start()**. Signals 'start' to get cron instant up & running.
 - **Add(schedule, job)**. Signals `add` to add entry(schedule, job) to cron instant.
@@ -49,3 +49,10 @@ Entry slice implements sort package, chronologically.
 ### Schedule: periodicSchedule
 A periodic schedule which occurs periodically: `t + period`
 - **Every(period)**. Returns a periodicSchedule instant.
+
+
+## Testing
+Given a queue of scheduled entries. Test that:
+- order of execution. add entries in reverse order, after one run, expects all entries are sorted accordingly.
+- execution. ensure all entries are being executed.
+- test concurrency adding.
