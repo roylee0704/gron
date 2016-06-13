@@ -12,7 +12,7 @@ import (
 	"github.com/roylee0704/gron/xtime"
 )
 
-// Most test jobs scheduled to run at second 1.
+// Most test jobs scheduled to run at 1 second mark.
 // Test expects to fail after OneSecond: 1.01 seconds.
 const OneSecond = 1*time.Second + 10*time.Millisecond
 
@@ -66,8 +66,8 @@ func TestStopWithoutStart(t *testing.T) {
 	cron.Stop()
 }
 
-// start cron, stop cron, add a job, job shouldn't run.
-func TestJobDontRunAfterStop(t *testing.T) {
+// start cron, stop cron, add a job, verify job shouldn't run.
+func TestJobsDontRunAfterStop(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
@@ -77,15 +77,18 @@ func TestJobDontRunAfterStop(t *testing.T) {
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
 
 	select {
+	case <-time.After(OneSecond):
+		// no job has run
 	case <-wait(wg):
 		t.FailNow()
-	case <-time.After(OneSecond):
+
 	}
 }
 
-// Test that after first entry has run, subsequent entries are checked and run
-// if possessed same schedule as first entry.
-func TestConcurrentSchedules(t *testing.T) {
+// Adds an immediate entry, make sure it runs immediately.
+// Subsequent entries are checked and run at same instant, iff possessed
+// same schedule as first entry.
+func TestMultipleEntries(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(3)
 	cron := New()
@@ -94,6 +97,7 @@ func TestConcurrentSchedules(t *testing.T) {
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
+	cron.AddFunc(Every(4*xtime.Week), func() {})
 
 	cron.Start()
 	defer cron.Stop()
@@ -138,7 +142,7 @@ func (j arbitraryJob) Run() {
 	}
 }
 
-// simple test on job implemeter
+// simple test on job types
 func TestJobImplementer(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
