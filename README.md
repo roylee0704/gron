@@ -5,13 +5,19 @@
 
 Gron provides a clear syntax for writing and deploying cron jobs.
 
+## Goals
+
+- A simple to use API for scheduling jobs.
+- Thread safety.
+- Ability to define own job type.
+
 ## Installation
 
 ```sh
 $ go get github.com/roylee0704/gron
 ```
 
-## Hello, World!
+## Usage
 Create `schedule.go`
 
 ```go
@@ -36,8 +42,9 @@ Gron currently ships with just 1 job type: runner. You can define your own by im
 For example:
 
 ```go
-type Party struct { funLevel string }
+type Reminder struct { ... }
 
-func (p *Party) Run() {
-  fmt.Println(p.funLevel)
-}```
+func (r *Reminder) Run() {
+  r.send()
+}
+```
