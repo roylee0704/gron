@@ -63,7 +63,6 @@ func TestConcurrentSchedules(t *testing.T) {
 		t.FailNow()
 	case <-wait(wg):
 	}
-
 }
 
 // add a job, start a cron, expect it runs
