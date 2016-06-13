@@ -43,18 +43,28 @@ Gron currently ships with just 1 job type: runner. You can define your own by im
 For example:
 
 ```go
-type Reminder struct {
-	Msg string
+type Feed struct {
+	Link string
+	data string
 }
 
-func (r Reminder) Run() {
-  fmt.Println(r.Msg)
+func (f Feed) Run() {
+  f.refresh()
+  fmt.Println(f.data)
 }
 
 c := gron.New()
-r := Reminder{ "Feed the baby!" }
-c.Add(gron.Every(30 * time.Minute), r)
+f := Feed{ Link: "http://www.reddit.com/.rss" }
+c.Add(gron.Every(30 * time.Minute), f)
 c.Start()
 ```
 
-### Jobs may be added to running cron. 
+### Or define your own job func
+
+```go
+c.Add(gron.Every(30 * time.Minute), func(){ reminder.send() } )
+```
+
+### Jobs may be added to running cron.
+
+### Event Parameters
