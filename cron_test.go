@@ -10,15 +10,19 @@ import (
 	"time"
 )
 
-// Most cron tests are expected to trigger after 1 second.
-// We fail tests after OneSecond: 1.01 seconds.
+// Most test jobs scheduled to run at second 1.
+// Test expects to fail after OneSecond: 1.01 seconds.
 const OneSecond = 1*time.Second + 10*time.Millisecond
 
-func TestMultipleSchedules(t *testing.T) {
+// Test that after first entry has run, subsequent entries are checked and run
+// if possessed same schedule as first entry.
+func TestConcurrentSchedules(t *testing.T) {
 
 	wg := &sync.WaitGroup{}
 	wg.Add(3)
 	cron := New()
+
+	cron.AddFunc(Every(5*time.Minute), func() {})
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
 	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
@@ -34,6 +38,8 @@ func TestMultipleSchedules(t *testing.T) {
 
 }
 
+// wait is a helper function that returns a signal upon WaitGroup instant wg
+// receives all feedback.
 func wait(wg *sync.WaitGroup) <-chan bool {
 	done := make(chan bool)
 
