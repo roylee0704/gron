@@ -9,7 +9,7 @@ import (
 
 // Schedule is the interface that wraps the basic Next method.
 //
-// Next deduces next occuring time based on t and underlying states.
+// Next deduces next occurring time based on t and underlying states.
 type Schedule interface {
 	Next(t time.Time) time.Time
 }
