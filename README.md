@@ -31,38 +31,45 @@ import (
 
 func main() {
 	c := gron.New()
-	c.AddFunc(gron.Every(3 * time.Hour), func() { fmt.Print("Runs every 3 hour") })
+	c.AddFunc(gron.Every(30 * time.Minute), func() { fmt.Println("Every 30 minutes") })
+
 	c.Start()
+	defer c.Stop() // doesn't halt already running jobs.
 }
 ```
 
-### Define your own job types
-Gron currently ships with just 1 job type: runner. You can define your own by implementing `gron.Job` interface.
+Here we
 
+### Define your own job types
+You may define custom job types by implementing `gron.Job` interface: `Run()`.
 
 For example:
 
 ```go
-type Feed struct {
-	Link string
-	data string
+type Reminder struct {
+	Msg string
 }
 
-func (f Feed) Run() {
-  f.refresh()
-  fmt.Println(f.data)
+func (r Reminder) Run() {
+  fmt.Println(r.Msg)
 }
+```
 
+After job has defined, instantiate it and schedule to run in Gron.
+```go
 c := gron.New()
-f := Feed{ Link: "http://www.reddit.com/.rss" }
-c.Add(gron.Every(30 * time.Minute), f)
+r := Reminder{ "Feed the baby!" }
+c.Add(gron.Every(1 * time.Hour), r)
 c.Start()
 ```
 
-### Or define your own job func
+### Or register your own job func
+You may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
 
 ```go
-c.Add(gron.Every(30 * time.Minute), func(){ reminder.send() } )
+c := gron.New()
+c.AddFunc(gron.Every(1 * time.Second), func() { fmt.Println("Every 1 second") })
+c.Start()
 ```
 
 ### Jobs may be added to running cron.
