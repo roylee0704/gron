@@ -108,9 +108,9 @@ import (
 	"github.com/roylee0704/gron/xtime"
 )
 
-type printJob struct{ Msg string }
+type PrintJob struct{ Msg string }
 
-func (p printJob) Run() {
+func (p PrintJob) Run() {
 	fmt.Println(p.Msg)
 }
 
