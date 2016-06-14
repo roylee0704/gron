@@ -38,7 +38,7 @@ func main() {
 
 #### Schedule Parameters
 
-Configure basic periodic schedule with `gron.Every()`
+Setup basic periodic schedule with `gron.Every()`
 ```go
 gron.Every(1*time.Second)
 gron.Every(1*time.Minute)
@@ -55,8 +55,8 @@ gron.Every(1*xtime.Week)
 
 Schedule to run at specific time with `.At(hh:mm)`
 ```go
-gron.Every(30*time.Day).At("00:00")
-gron.Every(1*time.Week).At("23:59")
+gron.Every(30 * xtime.Day).At("00:00")
+gron.Every(1 * xtime.Week).At("23:59")
 ```
 
 #### Custom Job Type
