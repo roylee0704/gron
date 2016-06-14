@@ -38,8 +38,6 @@ func main() {
 }
 ```
 
-Here we
-
 ### Define your own job types
 You may define custom job types by implementing `gron.Job` interface: `Run()`.
 
