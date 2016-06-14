@@ -62,7 +62,7 @@ c.Start()
 ```
 
 ### Or register your own job func
-You may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
+Caller may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
 
 ```go
 c := gron.New()
