@@ -30,12 +30,8 @@ import (
 )
 
 func main() {
-	var (
-		hourly = gron.Every(1 * time.Hour)
-	)
-
 	c := gron.New()
-	c.AddFunc(gron.Every(hourly), func() { fmt.Println("Every 1 hour") })
+	c.AddFunc(gron.Every(1*time.Hour), func() { fmt.Println("Every 1 hour") })
 	c.Start()
 }
 ```
