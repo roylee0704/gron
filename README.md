@@ -139,7 +139,7 @@ func main() {
 	c.Add(monthly, printBar)
 	c.AddFunc(yearly, purgeTask)
 
-	// Stop Gron (does not stop any jobs already running).
+	// Stop Gron (running jobs are not halted).
 	c.Stop()
 }
 ```
