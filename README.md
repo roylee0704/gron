@@ -31,11 +31,17 @@ import (
 
 func main() {
 	c := gron.New()
-	c.AddFunc(gron.Every(30 * time.Minute), func() { fmt.Println("Every 30 minutes") })
+	c.AddFunc(gron.Every(30*time.Minute), func() { fmt.Println("Every 30 minutes") })
 
 	c.Start()
-	defer c.Stop() // doesn't halt already running jobs.
+	c.Stop() // doesn't halt already running jobs.
 }
+```
+
+### Event Parameters
+```golang
+
+
 ```
 
 ### Define your own job types
@@ -57,7 +63,7 @@ After job has defined, instantiate it and schedule to run in Gron.
 ```go
 c := gron.New()
 r := Reminder{ "Feed the baby!" }
-c.Add(gron.Every(1 * time.Hour), r)
+c.Add(gron.Every(1*time.Hour), r)
 c.Start()
 ```
 
@@ -66,10 +72,8 @@ Caller may register `Funcs` to be executed on a given schedule. Gron will run th
 
 ```go
 c := gron.New()
-c.AddFunc(gron.Every(1 * time.Second), func() { fmt.Println("Every 1 second") })
+c.AddFunc(gron.Every(1*time.Second), func() { fmt.Println("Every 1 second") })
 c.Start()
 ```
 
 ### Jobs may be added to running cron.
-
-### Event Parameters
