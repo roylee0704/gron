@@ -29,10 +29,12 @@ import (
 	"github.com/roylee0704/gron"
 )
 
+var sd
+
 func main() {
 	c := gron.New()
 	c.AddFunc(gron.Every(1*time.Hour), func() {
-		fmt.Println("Every 1 hour")
+		fmt.Println("hourly cron job")
 	})
 	c.Start()
 }
