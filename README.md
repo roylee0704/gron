@@ -131,8 +131,8 @@ func main() {
 
 	c := gron.New()
 
-	c.AddFunc(weekly, func() { fmt.Println("Every week") })
 	c.Add(daily.At("12:30"), printFoo)
+	c.AddFunc(weekly, func() { fmt.Println("Every week") })
 	c.Start()
 
 	// Jobs may also be added to a running Gron
