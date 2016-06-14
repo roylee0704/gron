@@ -111,10 +111,13 @@ func (p printJob) Run() {
 func main() {
 
 	var (
+		// schedules
 		daily     = gron.Every(1 * xtime.Day)
 		weekly    = gron.Every(1 * xtime.Week)
 		monthly   = gron.Every(30 * xtime.Day)
 		yearly    = gron.Every(365 * xtime.Day)
+
+		// contrived jobs
 		purgeTask = func() { fmt.Println("purge unwanted records") }
 		printFoo  = printJob{"Foo"}
 		printBar  = printJob{"Bar"}
@@ -126,11 +129,11 @@ func main() {
 	c.Add(daily.At("12:30"), printFoo)
 	c.Start()
 
-	// Jobs may also be added to a running Cron
+	// Jobs may also be added to a running Gron
 	c.Add(monthly, printBar)
 	c.AddFunc(yearly, purgeTask)
 
-	// Stop the scheduler (does not stop any jobs already running).
+	// Stop Gron (does not stop any jobs already running).
 	defer c.Stop()
 }
 ```
