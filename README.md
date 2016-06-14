@@ -30,15 +30,23 @@ import (
 )
 
 func main() {
+	var (
+		hourly = gron.Every(1 * time.Hour)
+	)
+
 	c := gron.New()
-	c.AddFunc(gron.Every(30*time.Minute), func() { fmt.Println("Every 30 minutes") })
+	c.AddFunc(gron.Every(hourly), func() { fmt.Println("Every 1 hour") })
 	c.Start()
 }
 ```
 
 #### Schedule Parameters
 
-Setup basic periodic schedule with `gron.Every()`
+All interpretation and scheduling is done in the machine's local time zone (as provided by the Go [time package](http://www.golang.org/pkg/time)).
+
+
+Setup basic periodic schedule with `gron.Every()`.
+
 ```go
 gron.Every(1*time.Second)
 gron.Every(1*time.Minute)
