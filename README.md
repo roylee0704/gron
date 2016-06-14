@@ -29,12 +29,10 @@ import (
 	"github.com/roylee0704/gron"
 )
 
-var sd
-
 func main() {
 	c := gron.New()
 	c.AddFunc(gron.Every(1*time.Hour), func() {
-		fmt.Println("runs hourly")
+		fmt.Println("runs every hour.")
 	})
 	c.Start()
 }
@@ -42,7 +40,7 @@ func main() {
 
 #### Schedule Parameters
 
-All interpretation and scheduling is done in the machine's local time zone (as provided by the Go [time package](http://www.golang.org/pkg/time)).
+All scheduling is done in the machine's local time zone (as provided by the Go [time package](http://www.golang.org/pkg/time)).
 
 
 Setup basic periodic schedule with `gron.Every()`.
@@ -86,7 +84,7 @@ After job has defined, instantiate it and schedule to run in Gron.
 ```go
 c := gron.New()
 r := Reminder{ "Feed the baby!" }
-c.Add(gron.Every(1*time.Hour), r)
+c.Add(gron.Every(8*time.Hour), r)
 c.Start()
 ```
 
@@ -95,7 +93,7 @@ You may register `Funcs` to be executed on a given schedule. Gron will run them 
 
 ```go
 c := gron.New()
-c.AddFunc(gron.Every(1*time.Second), func() { fmt.Println("Every 1 second") })
+c.AddFunc(gron.Every(1*time.Second), func() { fmt.Println("runs every second") })
 c.Start()
 ```
 
@@ -126,7 +124,7 @@ func main() {
 		yearly    = gron.Every(365 * xtime.Day)
 
 		// contrived jobs
-		purgeTask = func() { fmt.Println("purge unwanted records") }
+		purgeTask = func() { fmt.Println("purge aged records") }
 		printFoo  = printJob{"Foo"}
 		printBar  = printJob{"Bar"}
 	)
