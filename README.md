@@ -34,7 +34,7 @@ var sd
 func main() {
 	c := gron.New()
 	c.AddFunc(gron.Every(1*time.Hour), func() {
-		fmt.Println("hourly cron job")
+		fmt.Println("runs hourly")
 	})
 	c.Start()
 }
@@ -142,6 +142,6 @@ func main() {
 	c.AddFunc(yearly, purgeTask)
 
 	// Stop Gron (does not stop any jobs already running).
-	defer c.Stop()
+	c.Stop()
 }
 ```
