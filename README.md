@@ -32,16 +32,29 @@ import (
 func main() {
 	c := gron.New()
 	c.AddFunc(gron.Every(30*time.Minute), func() { fmt.Println("Every 30 minutes") })
-
 	c.Start()
-	c.Stop() // doesn't halt already running jobs.
 }
 ```
 
-### Event Parameters
-```golang
+### Schedule Parameters
+```go
+gron.Every(1*time.Second)
+gron.Every(1*time.Minute)
+gron.Every(1*time.Hour)
+```
 
+Also support `Day`, `Week` by importing `gron/xtime`:
+```go
+import "github.com/roylee0704/gron"
 
+gron.Every(1*xtime.Day)
+gron.Every(1*xtime.Week)
+```
+
+Schedule at specific time with `.At(hh:mm)`
+```go
+gron.Every(30*time.Day).At("00:00")
+gron.Every(1*time.Week).At("23:59")
 ```
 
 ### Define your own job types
