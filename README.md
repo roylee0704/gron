@@ -49,8 +49,8 @@ Also support `Day`, `Week` by importing `gron/xtime`:
 ```go
 import "github.com/roylee0704/gron/xtime"
 
-gron.Every(1*xtime.Day)
-gron.Every(1*xtime.Week)
+gron.Every(1 * xtime.Day)
+gron.Every(1 * xtime.Week)
 ```
 
 Schedule to run at specific time with `.At(hh:mm)`
