@@ -37,6 +37,8 @@ func main() {
 ```
 
 ### Schedule Parameters
+
+Configure basic periodic schedule with `gron.Every()`
 ```go
 gron.Every(1*time.Second)
 gron.Every(1*time.Minute)
@@ -45,7 +47,7 @@ gron.Every(1*time.Hour)
 
 Also support `Day`, `Week` by importing `gron/xtime`:
 ```go
-import "github.com/roylee0704/gron"
+import "github.com/roylee0704/gron/xtime"
 
 gron.Every(1*xtime.Day)
 gron.Every(1*xtime.Week)
@@ -57,7 +59,7 @@ gron.Every(30*time.Day).At("00:00")
 gron.Every(1*time.Week).At("23:59")
 ```
 
-### Define your own job types
+### Custom Job Type
 You may define custom job types by implementing `gron.Job` interface: `Run()`.
 
 For example:
@@ -80,8 +82,8 @@ c.Add(gron.Every(1*time.Hour), r)
 c.Start()
 ```
 
-### Or register your own job func
-Caller may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
+### Custom Job Func
+You may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
 
 ```go
 c := gron.New()
