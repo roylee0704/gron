@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/roylee0704/gron"
 	"github.com/roylee0704/gron/xtime"
@@ -26,6 +27,11 @@ func main() {
 	)
 
 	c := gron.New()
+
+	c.AddFunc(gron.Every(1*time.Hour), func() {
+		fmt.Println("Every 1 hour")
+	})
+	c.Start()
 
 	c.AddFunc(weekly, func() { fmt.Println("Every week") })
 	c.Add(daily.At("12:30"), printFoo)
