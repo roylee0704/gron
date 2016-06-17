@@ -93,7 +93,9 @@ You may register `Funcs` to be executed on a given schedule. Gron will run them 
 
 ```go
 c := gron.New()
-c.AddFunc(gron.Every(1*time.Second), func() { fmt.Println("runs every second") })
+c.AddFunc(gron.Every(1*time.Second), func() {
+	fmt.Println("runs every second")
+})
 c.Start()
 ```
 
