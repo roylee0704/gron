@@ -106,6 +106,8 @@ func (c *Cron) Stop() {
 	c.stop <- struct{}{}
 }
 
+var after = time.After
+
 // run the scheduler...
 //
 // It needs to be private as it's responsible of synchronizing a critical
@@ -113,21 +115,23 @@ func (c *Cron) Stop() {
 func (c *Cron) run() {
 
 	var effective time.Time
+	now := time.Now().Local()
 
+	// to figure next trig time for entries, referenced from now
 	for _, e := range c.entries {
-		e.Next = e.Schedule.Next(time.Now())
+		e.Next = e.Schedule.Next(now)
 	}
 
 	for {
-
 		sort.Sort(byTime(c.entries))
 		if len(c.entries) > 0 {
 			effective = c.entries[0].Next
+		} else {
+			effective = now.AddDate(15, 0, 0) // to prevent phantom jobs.
 		}
 
 		select {
-		case now := <-time.After(effective.Sub(time.Now())):
-
+		case now = <-after(effective.Sub(now)):
 			// entries with same time gets run.
 			for _, entry := range c.entries {
 				if entry.Next != effective {
@@ -137,7 +141,6 @@ func (c *Cron) run() {
 				entry.Next = entry.Schedule.Next(now)
 				go entry.Job.Run()
 			}
-
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
 			c.entries = append(c.entries, e)
@@ -147,7 +150,7 @@ func (c *Cron) run() {
 	}
 }
 
-// Entries returns cron entries.
+// Entries returns cron etn
 func (c Cron) Entries() []*Entry {
 	return c.entries
 }

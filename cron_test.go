@@ -28,6 +28,28 @@ func TestNoEntries(t *testing.T) {
 	}
 }
 
+// hijack time.After, start the cron, simulate a delay.
+// empty entries shall not trigger to run next job in next second.
+func TestNoPhantomJobs(t *testing.T) {
+	entry := 0
+	// overriding internal state func
+	after = func(d time.Duration) <-chan time.Time {
+		entry++
+		return time.After(d)
+	}
+	defer func() {
+		after = time.After
+	}() // proper tear down
+
+	cron := New()
+	cron.Start()
+	time.Sleep(1 * time.Millisecond) // simulate a delay
+
+	if entry > 1 {
+		t.Errorf("phantom job had run %d time(s).", entry)
+	}
+}
+
 // add a job, start a cron, expect it runs
 func TestAddBeforeRun(t *testing.T) {
 	done := make(chan struct{})
