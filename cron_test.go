@@ -43,6 +43,8 @@ func TestNoPhantomJobs(t *testing.T) {
 
 	cron := New()
 	cron.Start()
+	defer cron.Stop()
+
 	time.Sleep(1 * time.Millisecond) // simulate a delay
 
 	if entry > 1 {
