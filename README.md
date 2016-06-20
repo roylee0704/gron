@@ -9,7 +9,8 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 
 - Minimalist APIs for scheduling jobs.
 - Thread safety.
-- Ability to define own job type.
+- Customizable Job Type.
+- Customizable Schedule.
 
 ## Installation
 
@@ -98,6 +99,16 @@ c.AddFunc(gron.Every(1*time.Second), func() {
 })
 c.Start()
 ```
+
+
+#### Custom Schedule
+Schedule is the interface that wraps the basic `Next` method: `Next(p time.Duration) time.Time`
+
+You may checkout `schedule.go`:
+
+- **periodicSchedule**. adds time instant t to underlying period p.
+- **atSchedule**. reoccurs every period p, at time components(hh:mm).
+
 
 ### Full Example
 
