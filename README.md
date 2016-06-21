@@ -104,11 +104,12 @@ c.Start()
 #### Custom Schedule
 Schedule is the interface that wraps the basic `Next` method: `Next(p time.Duration) time.Time`
 
-You may checkout `schedule.go`:
+In `gron`, the interface value `Schedule` has the following concrete types:
 
 - **periodicSchedule**. adds time instant t to underlying period p.
 - **atSchedule**. reoccurs every period p, at time components(hh:mm).
 
+For more info, checkout `schedule.go`.
 
 ### Full Example
 
