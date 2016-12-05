@@ -3,6 +3,7 @@ package gron
 import (
 	"sort"
 	"time"
+	"sync"
 )
 
 // Entry consists of a schedule and the job to be executed on that schedule.
@@ -53,10 +54,12 @@ type Job interface {
 // specified by the schedule. It may also be started, stopped and the entries
 // may be inspected.
 type Cron struct {
-	entries []*Entry
-	running bool
 	add     chan *Entry
 	stop    chan struct{}
+
+	sync.Mutex
+	running bool
+	entries []*Entry
 }
 
 // New instantiates new Cron instant c.
@@ -69,8 +72,19 @@ func New() *Cron {
 
 // Start signals cron instant c to get up and running.
 func (c *Cron) Start() {
+	c.Lock()
 	c.running = true
+	c.Unlock()
+
 	go c.run()
+}
+
+// isActive returns the current state of the Cron instance
+func (c *Cron) isActive() bool {
+	c.Lock()
+	defer c.Unlock()
+
+	return c.running
 }
 
 // Add appends schedule, job to entries.
@@ -84,8 +98,11 @@ func (c *Cron) Add(s Schedule, j Job) {
 		Job:      j,
 	}
 
-	if !c.running {
+	if !c.isActive() {
+		c.Lock()
 		c.entries = append(c.entries, entry)
+		c.Unlock()
+
 		return
 	}
 	c.add <- entry
@@ -99,10 +116,14 @@ func (c *Cron) AddFunc(s Schedule, j func()) {
 // Stop halts cron instant c from running.
 func (c *Cron) Stop() {
 
-	if !c.running {
+	if !c.isActive() {
 		return
 	}
+
+	c.Lock()
 	c.running = false
+	c.Unlock()
+
 	c.stop <- struct{}{}
 }
 
