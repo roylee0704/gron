@@ -85,7 +85,7 @@ After job has defined, instantiate it and schedule to run in Gron.
 ```go
 c := gron.New()
 r := Reminder{ "Feed the baby!" }
-c.Add(gron.Every(8*time.Hour), r)
+c.Add(gron.Every(4*time.Hour), r)
 c.Start()
 ```
 
