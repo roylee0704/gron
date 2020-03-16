@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/roylee0704/gron/xtime"
+	"github.com/fred07/gron/xtime"
 )
 
 func TestPeriodicAtNext(t *testing.T) {

@@ -2,6 +2,7 @@ package gron
 
 import (
 	"sort"
+	"sync"
 	"time"
 )
 
@@ -43,7 +44,7 @@ func (b byTime) Less(i, j int) bool {
 //
 // Run executes the underlying func.
 type Job interface {
-	Run()
+	Run(wg *sync.WaitGroup)
 }
 
 // Cron provides a convenient interface for scheduling job such as to clean-up
@@ -57,6 +58,7 @@ type Cron struct {
 	running bool
 	add     chan *Entry
 	stop    chan struct{}
+	wg      *sync.WaitGroup
 }
 
 // New instantiates new Cron instant c.
@@ -106,6 +108,16 @@ func (c *Cron) Stop() {
 	c.stop <- struct{}{}
 }
 
+// StopAfterJobDone halts cron after running jobs are finished
+func (c *Cron) StopAfterJobDone() {
+	if !c.running {
+		return
+	}
+	c.running = false
+	c.wg.Done()
+	c.stop <- struct{}{}
+}
+
 var after = time.After
 
 // run the scheduler...
@@ -139,7 +151,7 @@ func (c *Cron) run() {
 				}
 				entry.Prev = now
 				entry.Next = entry.Schedule.Next(now)
-				go entry.Job.Run()
+				go entry.Job.Run(wg)
 			}
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
@@ -163,6 +175,8 @@ func (c Cron) Entries() []*Entry {
 type JobFunc func()
 
 // Run calls j()
-func (j JobFunc) Run() {
+func (j JobFunc) Run(wg *sync.WaitGroup) {
 	j()
+	wg.Add(1)
+	wg.Done()
 }
