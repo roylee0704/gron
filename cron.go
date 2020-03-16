@@ -151,7 +151,7 @@ func (c *Cron) run() {
 				}
 				entry.Prev = now
 				entry.Next = entry.Schedule.Next(now)
-				go entry.Job.Run(wg)
+				go entry.Job.Run(c.wg)
 			}
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
