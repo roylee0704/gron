@@ -109,6 +109,37 @@ func TestJobsDontRunAfterStop(t *testing.T) {
 	}
 }
 
+func TestJobFinishedBeforeStop(t *testing.T) {
+	failCh := make(chan bool, 1)
+
+	wg := &sync.WaitGroup{}
+
+	go func(wg *sync.WaitGroup, failCh chan bool) {
+	loop:
+		for {
+			select {
+			case <-wait(wg):
+				break loop
+			case <-failCh:
+				t.FailNow()
+			default:
+			}
+		}
+	}(wg, failCh)
+
+	cron := New()
+	wg.Add(1)
+	cron.AddFunc(Every(2*time.Second), func() {
+		time.Sleep(time.Duration(1) * time.Second) // make it running while stop call
+		wg.Done()
+	})
+	cron.Start()
+	time.Sleep(time.Duration(2) * time.Second) // prevent stop too fast
+	cron.StopAfterJobDone()                    // call stop
+	failCh <- true                             // fail signal
+
+}
+
 // Test that entries are sorted correctly.
 // Adds an immediate entry, make sure it runs immediately.
 // Subsequent entries are checked and run at same instant, iff possessed
@@ -161,7 +192,7 @@ type arbitraryJob struct {
 }
 
 // implements runnable
-func (j arbitraryJob) Run() {
+func (j arbitraryJob) Run(wg *sync.WaitGroup) {
 	if j.wg != nil {
 		j.wg.Done()
 	}

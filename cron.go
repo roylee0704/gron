@@ -164,7 +164,7 @@ func (c *Cron) run() {
 }
 
 // Entries returns cron etn
-func (c Cron) Entries() []*Entry {
+func (c *Cron) Entries() []*Entry {
 	return c.entries
 }
 
