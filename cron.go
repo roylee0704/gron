@@ -58,7 +58,7 @@ type Cron struct {
 	running bool
 	add     chan *Entry
 	stop    chan struct{}
-	wg      *sync.WaitGroup
+	wg      sync.WaitGroup
 }
 
 // New instantiates new Cron instant c.
@@ -114,7 +114,7 @@ func (c *Cron) StopAfterJobDone() {
 		return
 	}
 	c.running = false
-	c.wg.Done()
+	c.wg.Wait()
 	c.stop <- struct{}{}
 }
 
@@ -151,7 +151,8 @@ func (c *Cron) run() {
 				}
 				entry.Prev = now
 				entry.Next = entry.Schedule.Next(now)
-				go entry.Job.Run(c.wg)
+				c.wg.Add(1)
+				go entry.Job.Run(&c.wg)
 			}
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
@@ -177,6 +178,5 @@ type JobFunc func()
 // Run calls j()
 func (j JobFunc) Run(wg *sync.WaitGroup) {
 	j()
-	wg.Add(1)
 	wg.Done()
 }
