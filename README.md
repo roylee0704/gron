@@ -14,7 +14,7 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 ## Installation
 
 ```sh
-$ go get github.com/roylee0704/gron
+$ go get github.com/fred07/gron
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ package main
 import (
 	"fmt"
 	"time"
-	"github.com/roylee0704/gron"
+	"github.com/fred07/gron"
 )
 
 func main() {
@@ -54,7 +54,7 @@ gron.Every(1*time.Hour)
 Also support `Day`, `Week` by importing `gron/xtime`:
 
 ```go
-import "github.com/roylee0704/gron/xtime"
+import "github.com/fred07/gron/xtime"
 
 gron.Every(1 * xtime.Day)
 gron.Every(1 * xtime.Week)
@@ -122,8 +122,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/roylee0704/gron"
-	"github.com/roylee0704/gron/xtime"
+	"github.com/fred07/gron"
+	"github.com/fred07/gron/xtime"
 )
 
 type PrintJob struct{ Msg string }
