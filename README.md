@@ -1,5 +1,6 @@
 # gron
 
+[![Build Status](https://travis-ci.com/Fred07/gron.svg?branch=master)](https://travis-ci.com/Fred07/gron)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fred07/gron)](https://goreportcard.com/report/github.com/fred07/gron)
 
 Gron provides a clear syntax for writing and deploying cron jobs.
