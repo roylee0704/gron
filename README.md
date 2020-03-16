@@ -1,7 +1,6 @@
 # gron
-[![Build Status](https://semaphoreci.com/api/v1/roylee0704/gron/branches/master/badge.svg)](https://semaphoreci.com/roylee0704/gron)
-[![Go Report Card](https://goreportcard.com/badge/github.com/roylee0704/gron)](https://goreportcard.com/report/github.com/roylee0704/gron)
-[![GoDoc](https://godoc.org/github.com/roylee0704/gron?status.svg)](https://godoc.org/github.com/roylee0704/gron)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/fred07/gron)](https://goreportcard.com/report/github.com/fred07/gron)
 
 Gron provides a clear syntax for writing and deploying cron jobs.
 
@@ -19,6 +18,7 @@ $ go get github.com/roylee0704/gron
 ```
 
 ## Usage
+
 Create `schedule.go`
 
 ```go
@@ -39,10 +39,9 @@ func main() {
 }
 ```
 
-#### Schedule Parameters
+### Schedule Parameters
 
 All scheduling is done in the machine's local time zone (as provided by the Go [time package](http://www.golang.org/pkg/time)).
-
 
 Setup basic periodic schedule with `gron.Every()`.
 
@@ -53,6 +52,7 @@ gron.Every(1*time.Hour)
 ```
 
 Also support `Day`, `Week` by importing `gron/xtime`:
+
 ```go
 import "github.com/roylee0704/gron/xtime"
 
@@ -61,12 +61,14 @@ gron.Every(1 * xtime.Week)
 ```
 
 Schedule to run at specific time with `.At(hh:mm)`
+
 ```go
 gron.Every(30 * xtime.Day).At("00:00")
 gron.Every(1 * xtime.Week).At("23:59")
 ```
 
-#### Custom Job Type
+### Custom Job Type
+
 You may define custom job types by implementing `gron.Job` interface: `Run()`.
 
 For example:
@@ -82,6 +84,7 @@ func (r Reminder) Run() {
 ```
 
 After job has defined, instantiate it and schedule to run in Gron.
+
 ```go
 c := gron.New()
 r := Reminder{ "Feed the baby!" }
@@ -89,7 +92,8 @@ c.Add(gron.Every(8*time.Hour), r)
 c.Start()
 ```
 
-#### Custom Job Func
+### Custom Job Func
+
 You may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
 
 ```go
@@ -100,8 +104,8 @@ c.AddFunc(gron.Every(1*time.Second), func() {
 c.Start()
 ```
 
+### Custom Schedule
 
-#### Custom Schedule
 Schedule is the interface that wraps the basic `Next` method: `Next(p time.Duration) time.Time`
 
 In `gron`, the interface value `Schedule` has the following concrete types:
