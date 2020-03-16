@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/fred07/gron"
@@ -10,7 +11,7 @@ import (
 
 type printJob struct{ Msg string }
 
-func (p printJob) Run() {
+func (p printJob) Run(wg *sync.WaitGroup) {
 	fmt.Println(p.Msg)
 }
 
