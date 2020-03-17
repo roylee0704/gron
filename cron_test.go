@@ -111,29 +111,27 @@ func TestJobsDontRunAfterStop(t *testing.T) {
 
 func TestJobFinishedBeforeStop(t *testing.T) {
 	failCh := make(chan bool, 1)
+	successCh := make(chan bool, 1)
 
-	wg := &sync.WaitGroup{}
-
-	go func(wg *sync.WaitGroup, failCh chan bool) {
+	go func(successCh chan bool, failCh chan bool) {
 	loop:
 		for {
 			select {
-			case <-wait(wg):
+			case <-successCh:
 				break loop
 			case <-failCh:
 				t.FailNow()
 			default:
 			}
 		}
-	}(wg, failCh)
+	}(successCh, failCh)
 
 	cron := New()
-	wg.Add(1)
-	cron.AddFunc(Every(2*time.Second), func() {
-		time.Sleep(time.Duration(1) * time.Second) // make it running while stop call
-		wg.Done()
-	})
 	cron.Start()
+	cron.AddFunc(Every(2*time.Second), func() {
+		time.Sleep(time.Duration(1) * time.Second) // make job running while stopping
+		successCh <- true                          // success signal
+	})
 	time.Sleep(time.Duration(2) * time.Second) // prevent stop too fast
 	cron.StopAfterJobDone()                    // call stop
 	failCh <- true                             // fail signal
