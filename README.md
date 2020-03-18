@@ -14,7 +14,9 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 
 ## Different to origin
 
-Most features and interfaces are as same as origin repository, but also introduces one new method to Cron, which `StopAfterJobDone` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios like handling `os.Signal` including `SIGINT`, `SIGTERM` (which handler does not including in library). After interrupt signal handling, stopping cron gracefully via `StopAfterJobDone`, prevent bundle of processing job stop inappropriately.
+Most features and interfaces are as same as origin repository, but also introduces one new feature to Cron, which `GracefullyStop()` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios like handling `os.Signal` including `SIGINT`, `SIGTERM` (which handler does not including in library). After interrupt signal handling, stopping cron gracefully via `GracefullyStop`, prevent bundle of processing job stop inappropriately.
+
+Second new feature is built in OS signal handler, after calling `HandleSignals()`, and passing target signal, Cron would register signals, while signals interrupt, it's behavior would just like `GracefullyStop()` (which also means not exactly same) that ensure sub-job are finished.
 
 ## Installation
 
@@ -119,6 +121,20 @@ In `gron`, the interface value `Schedule` has the following concrete types:
 - **atSchedule**. reoccurs every period p, at time components(hh:mm).
 
 For more info, checkout `schedule.go`.
+
+### Serve like a server
+
+In real case, you may need a infinite `for` loop to keep main goroutine alive, in fact, you can use `StartAndServe()` to do that.
+
+`StartAndServe()` is the method to start cron and keeping process there like a server.
+
+```go
+c := gron.New()
+c.AddFunc(gron.Every(1*time.Second), func() {
+	fmt.Println("runs every second")
+})
+c.StartAndServe()
+```
 
 ### Full Example
 

@@ -1,6 +1,8 @@
 package gron
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"sort"
@@ -83,6 +85,12 @@ func (c *Cron) HandleSignals(signals ...os.Signal) {
 	signal.Notify(c.sigChan, signals...)
 }
 
+// StartAndServe serve cron like a eternal process
+func (c *Cron) StartAndServe() error {
+	c.running = true
+	return c.run()
+}
+
 // Start signals cron instant c to get up and running.
 func (c *Cron) Start() {
 	c.running = true
@@ -143,7 +151,7 @@ var after = time.After
 //
 // It needs to be private as it's responsible of synchronizing a critical
 // shared state: `running`.
-func (c *Cron) run() {
+func (c *Cron) run() error {
 
 	var effective time.Time
 	now := time.Now().Local()
@@ -173,14 +181,14 @@ func (c *Cron) run() {
 				c.wg.Add(1)
 				go entry.Job.Run(&c.wg)
 			}
-		case <-c.sigChan:
+		case sig := <-c.sigChan:
 			c.stopAndWait()
-			return
+			return fmt.Errorf("Interrupt by signal: %s", sig)
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
 			c.entries = append(c.entries, e)
 		case <-c.stop:
-			return // terminate go-routine.
+			return errors.New("Cron stop") // terminate go-routine.
 		}
 	}
 }
