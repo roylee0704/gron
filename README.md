@@ -12,7 +12,7 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 - Customizable Job Type.
 - Customizable Schedule.
 
-## Different to origin gron
+## Different to origin
 
 Most features and interfaces are as same as origin repository, but also introduces one new method to Cron, which `StopAfterJobDone` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios like handling `os.Signal` including `SIGINT`, `SIGTERM` (which handler does not including in library). After interrupt signal handling, stopping cron gracefully via `StopAfterJobDone`, prevent bundle of processing job stop inappropriately.
 
