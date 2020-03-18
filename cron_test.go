@@ -109,7 +109,7 @@ func TestJobsDontRunAfterStop(t *testing.T) {
 	}
 }
 
-func TestJobFinishedBeforeStop(t *testing.T) {
+func TestGracefullyStop(t *testing.T) {
 	failCh := make(chan bool, 1)
 	successCh := make(chan bool, 1)
 
@@ -121,7 +121,7 @@ func TestJobFinishedBeforeStop(t *testing.T) {
 			successCh <- true                          // success signal
 		})
 		time.Sleep(time.Duration(2) * time.Second) // prevent stop too fast
-		cron.StopAfterJobDone()                    // call stop
+		cron.GracefullyStop()                      // call stop
 		failCh <- true                             // fail signal
 	}()
 

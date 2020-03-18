@@ -122,8 +122,9 @@ func (c *Cron) Stop() {
 	c.stop <- struct{}{}
 }
 
-// StopAfterJobDone halts cron after running jobs are finished
-func (c *Cron) StopAfterJobDone() {
+// GracefullyStop halts cron after running jobs are finished
+func (c *Cron) GracefullyStop() {
+
 	c.stopAndWait()
 	c.stop <- struct{}{}
 }
