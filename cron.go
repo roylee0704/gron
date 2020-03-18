@@ -83,6 +83,12 @@ func (c *Cron) HandleSignals(signals ...os.Signal) {
 	signal.Notify(c.sigChan, signals...)
 }
 
+// StartAndServe serve cron like a eternal process
+func (c *Cron) StartAndServe() {
+	c.running = true
+	c.run()
+}
+
 // Start signals cron instant c to get up and running.
 func (c *Cron) Start() {
 	c.running = true
