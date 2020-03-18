@@ -1,6 +1,8 @@
 package gron
 
 import (
+	"os"
+	"os/signal"
 	"sort"
 	"sync"
 	"time"
@@ -59,14 +61,26 @@ type Cron struct {
 	add     chan *Entry
 	stop    chan struct{}
 	wg      sync.WaitGroup
+	sigChan chan os.Signal
 }
 
 // New instantiates new Cron instant c.
 func New() *Cron {
 	return &Cron{
-		stop: make(chan struct{}),
-		add:  make(chan *Entry),
+		stop:    make(chan struct{}),
+		add:     make(chan *Entry),
+		sigChan: make(chan os.Signal),
 	}
+}
+
+// HandleSignals to deside what signal should be aware
+func (c *Cron) HandleSignals(signals ...os.Signal) {
+	if len(signals) == 0 {
+		return
+	}
+
+	// sigChan would not receive signals without register
+	signal.Notify(c.sigChan, signals...)
 }
 
 // Start signals cron instant c to get up and running.
@@ -108,14 +122,19 @@ func (c *Cron) Stop() {
 	c.stop <- struct{}{}
 }
 
-// StopAfterJobDone halts cron after running jobs are finished
-func (c *Cron) StopAfterJobDone() {
+// GracefullyStop halts cron after running jobs are finished
+func (c *Cron) GracefullyStop() {
+
+	c.stopAndWait()
+	c.stop <- struct{}{}
+}
+
+func (c *Cron) stopAndWait() {
 	if !c.running {
 		return
 	}
 	c.running = false
 	c.wg.Wait()
-	c.stop <- struct{}{}
 }
 
 var after = time.After
@@ -154,6 +173,9 @@ func (c *Cron) run() {
 				c.wg.Add(1)
 				go entry.Job.Run(&c.wg)
 			}
+		case <-c.sigChan:
+			c.stopAndWait()
+			return
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
 			c.entries = append(c.entries, e)

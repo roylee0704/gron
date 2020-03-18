@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
@@ -105,36 +106,62 @@ func TestJobsDontRunAfterStop(t *testing.T) {
 		// no job has run
 	case <-wait(wg):
 		t.FailNow()
-
 	}
 }
 
-func TestJobFinishedBeforeStop(t *testing.T) {
+func TestGracefullyStop(t *testing.T) {
 	failCh := make(chan bool, 1)
 	successCh := make(chan bool, 1)
 
-	go func(successCh chan bool, failCh chan bool) {
-	loop:
-		for {
-			select {
-			case <-successCh:
-				break loop
-			case <-failCh:
-				t.FailNow()
-			default:
-			}
-		}
-	}(successCh, failCh)
+	go func() {
+		cron := New()
+		cron.Start()
+		cron.AddFunc(Every(2*time.Second), func() {
+			time.Sleep(time.Duration(1) * time.Second) // make job running while stopping
+			successCh <- true                          // success signal
+		})
+		time.Sleep(time.Duration(2) * time.Second) // prevent stop too fast
+		cron.GracefullyStop()                      // call stop
+		failCh <- true                             // fail signal
+	}()
 
+loop:
+	for {
+		select {
+		case <-successCh:
+			break loop
+		case <-failCh:
+			t.FailNow()
+		default:
+		}
+	}
+}
+
+func TestInterruptSingal(t *testing.T) {
+	successCh := make(chan bool, 1)
 	cron := New()
-	cron.Start()
-	cron.AddFunc(Every(2*time.Second), func() {
-		time.Sleep(time.Duration(1) * time.Second) // make job running while stopping
-		successCh <- true                          // success signal
-	})
-	time.Sleep(time.Duration(2) * time.Second) // prevent stop too fast
-	cron.StopAfterJobDone()                    // call stop
-	failCh <- true                             // fail signal
+
+	go func() {
+		pid := syscall.Getpid()
+		cron.Start()
+		cron.HandleSignals(syscall.SIGINT, syscall.SIGTERM)
+		cron.AddFunc(Every(1*time.Second), func() {
+			time.Sleep(time.Duration(1) * time.Second)
+			successCh <- true
+		})
+		time.Sleep(time.Duration(1) * time.Second)
+		syscall.Kill(pid, syscall.SIGINT)
+	}()
+
+loop:
+	for {
+		select {
+		case <-successCh:
+			break loop
+		case <-time.After(time.Duration(5) * time.Second):
+			t.FailNow()
+		}
+	}
 
 }
 
