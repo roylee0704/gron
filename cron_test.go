@@ -14,8 +14,8 @@ import (
 )
 
 // Most test jobs scheduled to run at 1 second mark.
-// Test expects to fail after OneSecond: 1.01 seconds.
-const OneSecond = 1*time.Second + 10*time.Millisecond
+// Test expects to fail after OneSecond: 1.05 seconds.
+const OneSecond = 1*time.Second + 50*time.Millisecond
 
 // start cron, stop cron successfully.
 func TestNoEntries(t *testing.T) {
@@ -116,11 +116,11 @@ func TestGracefullyStop(t *testing.T) {
 	go func() {
 		cron := New()
 		cron.Start()
-		cron.AddFunc(Every(2*time.Second), func() {
-			time.Sleep(time.Duration(1) * time.Second) // make job running while stopping
+		cron.AddFunc(Every(3*time.Second), func() {
+			time.Sleep(time.Duration(2) * time.Second) // make job running while stopping
 			successCh <- true                          // success signal
 		})
-		time.Sleep(time.Duration(2) * time.Second) // prevent stop too fast
+		time.Sleep(time.Duration(4) * time.Second) // prevent stop too fast
 		cron.GracefullyStop()                      // call stop
 		failCh <- true                             // fail signal
 	}()
@@ -145,11 +145,11 @@ func TestInterruptSingal(t *testing.T) {
 		pid := syscall.Getpid()
 		cron.Start()
 		cron.HandleSignals(syscall.SIGINT, syscall.SIGTERM)
-		cron.AddFunc(Every(1*time.Second), func() {
-			time.Sleep(time.Duration(1) * time.Second)
+		cron.AddFunc(Every(3*time.Second), func() {
+			time.Sleep(time.Duration(2) * time.Second)
 			successCh <- true
 		})
-		time.Sleep(time.Duration(1) * time.Second)
+		time.Sleep(time.Duration(4) * time.Second)
 		syscall.Kill(pid, syscall.SIGINT)
 	}()
 
@@ -158,7 +158,7 @@ loop:
 		select {
 		case <-successCh:
 			break loop
-		case <-time.After(time.Duration(5) * time.Second):
+		case <-time.After(time.Duration(6) * time.Second):
 			t.FailNow()
 		}
 	}
