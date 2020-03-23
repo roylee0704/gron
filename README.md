@@ -14,9 +14,17 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 
 ## Different to origin
 
-Most features and interfaces are as same as origin repository, but also introduces one new feature to Cron, which `GracefullyStop()` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios like handling `os.Signal` including `SIGINT`, `SIGTERM` (which handler does not including in library). After interrupt signal handling, stopping cron gracefully via `GracefullyStop`, prevent bundle of processing job stop inappropriately.
+Most features and interfaces are as same as origin repository, but also introduces one new feature to Cron, which `GracefullyStop()` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios like handling `os.Signal` including `SIGINT`, `SIGTERM` (which gron also provide handler for this, check document below). After interrupt signal handling, stopping cron gracefully via `GracefullyStop`, prevent bundle of processing job stop inappropriately.
 
 Second new feature is built in OS signal handler, after calling `HandleSignals()`, and passing target signal, Cron would register signals, while signals interrupt, it's behavior would just like `GracefullyStop()` (which also means not exactly same) that ensure sub-job are finished.
+
+Last one is `StartAndServe()`, this feature makes gron blocking and keep go-routine alive and til it return an error, which that you don't have to create an ugly infinite loop. All you need to do is like `log.Fatal(gron.StartAndServe())`
+
+### Summary of new features
+
+- `GracefullyStop()`
+- `HandleSignals()`
+- `StartAndServe()`
 
 ## Installation
 
