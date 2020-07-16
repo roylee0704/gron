@@ -147,6 +147,7 @@ func (c *Cron) run() {
 		case <-c.stop:
 			return // terminate go-routine.
 		}
+		now = time.Now().Local()
 	}
 }
 
