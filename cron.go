@@ -1,10 +1,9 @@
 package gron
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"os"
-	"os/signal"
 	"sort"
 	"sync"
 	"time"
@@ -63,38 +62,26 @@ type Cron struct {
 	add     chan *Entry
 	stop    chan struct{}
 	wg      sync.WaitGroup
-	sigChan chan os.Signal
 }
 
 // New instantiates new Cron instant c.
 func New() *Cron {
 	return &Cron{
-		stop:    make(chan struct{}),
-		add:     make(chan *Entry),
-		sigChan: make(chan os.Signal),
+		stop: make(chan struct{}),
+		add:  make(chan *Entry),
 	}
-}
-
-// HandleSignals to deside what signal should be aware
-func (c *Cron) HandleSignals(signals ...os.Signal) {
-	if len(signals) == 0 {
-		return
-	}
-
-	// sigChan would not receive signals without register
-	signal.Notify(c.sigChan, signals...)
 }
 
 // StartAndServe serve cron like a eternal process
-func (c *Cron) StartAndServe() error {
+func (c *Cron) StartAndServe(ctx context.Context) error {
 	c.running = true
-	return c.run()
+	return c.run(ctx)
 }
 
 // Start signals cron instant c to get up and running.
-func (c *Cron) Start() {
+func (c *Cron) Start(ctx context.Context) {
 	c.running = true
-	go c.run()
+	go c.run(ctx)
 }
 
 // Add appends schedule, job to entries.
@@ -151,7 +138,7 @@ var after = time.After
 //
 // It needs to be private as it's responsible of synchronizing a critical
 // shared state: `running`.
-func (c *Cron) run() error {
+func (c *Cron) run(ctx context.Context) error {
 
 	var effective time.Time
 	now := time.Now().Local()
@@ -181,7 +168,7 @@ func (c *Cron) run() error {
 				c.wg.Add(1)
 				go entry.Job.Run(&c.wg)
 			}
-		case sig := <-c.sigChan:
+		case sig := <-ctx.Done():
 			c.stopAndWait()
 			return fmt.Errorf("Interrupt by signal: %s", sig)
 		case e := <-c.add:

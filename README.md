@@ -14,16 +14,15 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 
 ## Different to origin
 
-Most features and interfaces are as same as origin repository, but also introduces one new feature to Cron, which `GracefullyStop()` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios like handling `os.Signal` including `SIGINT`, `SIGTERM` (which gron also provide handler for this, check document below). After interrupt signal handling, stopping cron gracefully via `GracefullyStop`, prevent bundle of processing job stop inappropriately.
+Most features and interfaces are as same as origin repository, but also introduces one new feature to Cron, which `GracefullyStop()` make cron has ability to hold the process, stop creating new child goroutine, and ensure sub-job is finished before main goroutine close. This benefit to the scenarios that you want to handle OS signals, including `SIGINT`, `SIGTERM`. For example, after the interruption from signal `SIGINT`, stopping cron gracefully by calling `GracefullyStop()`, this could prevent bundle of processing job stop inappropriately.
 
-Second new feature is built in OS signal handler, after calling `HandleSignals()`, and passing target signal, Cron would register signals, while signals interrupt, it's behavior would just like `GracefullyStop()` (which also means not exactly same) that ensure sub-job are finished.
+Second feature is `StartAndServe()`, this feature makes gron blocking and keep go-routine alive and til it return an error, which that you don't have to create an ugly infinite loop. All you need to do is like `log.Fatal(gron.StartAndServe())`
 
-Last one is `StartAndServe()`, this feature makes gron blocking and keep go-routine alive and til it return an error, which that you don't have to create an ugly infinite loop. All you need to do is like `log.Fatal(gron.StartAndServe())`
+And context is required now as a parameter when calling the `Start()` or `StartAndServe()` function, and gron would trigger familiar behavior just like `GracefullyStop()` while `<-ctx.Done()` is triggered.
 
 ### Summary of new features
 
 - `GracefullyStop()`
-- `HandleSignals()`
 - `StartAndServe()`
 
 ## Installation
@@ -101,10 +100,11 @@ func (r Reminder) Run(wg *sync.WaitGroup) {
 After job has defined, instantiate it and schedule to run in Gron.
 
 ```go
+ctx, cancel := context.WithCancel(context.Background())
 c := gron.New()
 r := Reminder{ "Feed the baby!" }
 c.Add(gron.Every(8*time.Hour), r)
-c.Start()
+c.Start(ctx)
 ```
 
 ### Custom Job Func
@@ -112,11 +112,12 @@ c.Start()
 You may register `Funcs` to be executed on a given schedule. Gron will run them in their own goroutines, asynchronously.
 
 ```go
+ctx, cancel := context.WithCancel(context.Background())
 c := gron.New()
 c.AddFunc(gron.Every(1*time.Second), func() {
 	fmt.Println("runs every second")
 })
-c.Start()
+c.Start(ctx)
 ```
 
 ### Custom Schedule
@@ -137,11 +138,12 @@ In real case, you may need a infinite `for` loop to keep main goroutine alive, i
 `StartAndServe()` is the method to start cron and keeping process there like a server.
 
 ```go
+ctx, cancel := context.WithCancel(context.Background())
 c := gron.New()
 c.AddFunc(gron.Every(1*time.Second), func() {
 	fmt.Println("runs every second")
 })
-c.StartAndServe()
+c.StartAndServe(ctx)
 ```
 
 ### Full Example

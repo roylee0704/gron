@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -27,16 +28,19 @@ func main() {
 		printBar  = printJob{"Bar"}
 	)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	c := gron.New()
 
 	c.AddFunc(gron.Every(1*time.Hour), func() {
 		fmt.Println("Every 1 hour")
 	})
-	c.Start()
+	c.Start(ctx)
 
 	c.AddFunc(weekly, func() { fmt.Println("Every week") })
 	c.Add(daily.At("12:30"), printFoo)
-	c.Start()
+	c.Start(ctx)
 
 	// Jobs may also be added to a running Cron
 	c.Add(monthly, printBar)
