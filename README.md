@@ -84,7 +84,7 @@ gron.Every(1 * xtime.Week).At("23:59")
 
 ### Custom Job Type
 
-You may define custom job types by implementing `gron.Job` interface: `Run()`.
+You may define custom job types by implementing `gron.Job` interface: `Run(wg *sync.WaitGroup)`.
 
 For example:
 
@@ -93,7 +93,7 @@ type Reminder struct {
 	Msg string
 }
 
-func (r Reminder) Run() {
+func (r Reminder) Run(wg *sync.WaitGroup) {
   fmt.Println(r.Msg)
 }
 ```
@@ -130,7 +130,7 @@ In `gron`, the interface value `Schedule` has the following concrete types:
 
 For more info, checkout `schedule.go`.
 
-### Serve like a server
+### Serve like a daemon
 
 In real case, you may need a infinite `for` loop to keep main goroutine alive, in fact, you can use `StartAndServe()` to do that.
 
