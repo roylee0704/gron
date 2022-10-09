@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/kaylee595/gron"
-	"github.com/kaylee595/gron"
+	"github.com/kaylee595/gron/xtime"
 )
 
 type printJob struct{ Msg string }
