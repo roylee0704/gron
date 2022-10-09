@@ -95,7 +95,7 @@ type atSchedule struct {
 // reset returns new Date based on time instant t, and reconfigure its hh:ss
 // according to atSchedule's hh:ss.
 func (as atSchedule) reset(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), as.hh, as.mm, 0, 0, time.UTC)
+	return time.Date(t.Year(), t.Month(), t.Day(), as.hh, as.mm, 0, 0, time.Local)
 }
 
 // Next returns **next** time.
