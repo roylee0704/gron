@@ -15,7 +15,7 @@ Gron provides a clear syntax for writing and deploying cron jobs.
 ## Installation
 
 ```sh
-$ go get github.com/roylee0704/gron
+$ go get github.com/kaylee595/gron
 ```
 
 ## Usage
