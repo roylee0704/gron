@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/roylee0704/gron/xtime"
+	"github.com/wifecooky/gron/xtime"
 )
 
 // Schedule is the interface that wraps the basic Next method.
