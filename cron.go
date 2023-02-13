@@ -22,13 +22,13 @@ type Entry struct {
 // byTime is a handy wrapper to chronologically sort entries.
 type byTime []*Entry
 
-func (b byTime) Len() int      { return len(b) }
+func (b byTime) Len() int { return len(b) }
+
 func (b byTime) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
 
 // Less reports `earliest` time i should sort before j.
 // zero time is not `earliest` time.
 func (b byTime) Less(i, j int) bool {
-
 	if b[i].Next.IsZero() {
 		return false
 	}
@@ -46,6 +46,28 @@ type Job interface {
 	Run()
 }
 
+// JobWithCancel is the interface depends on Job interface.
+//
+// JobID is the unique ID of job, to support job canceling.
+type JobWithCancel interface {
+	Job
+	JobID() string // JobID should be unique string, like uuid.
+}
+
+// baseJob is the generated job wrap for func AddFunc
+type baseJob struct {
+	id      string
+	JobFunc func()
+}
+
+func (job *baseJob) JobID() string {
+	return job.id
+}
+
+func (job *baseJob) Run() {
+	job.JobFunc()
+}
+
 // Cron provides a convenient interface for scheduling job such as to clean-up
 // database entry every month.
 //
@@ -56,14 +78,16 @@ type Cron struct {
 	entries []*Entry
 	running bool
 	add     chan *Entry
+	cancel  chan string
 	stop    chan struct{}
 }
 
 // New instantiates new Cron instant c.
 func New() *Cron {
 	return &Cron{
-		stop: make(chan struct{}),
-		add:  make(chan *Entry),
+		stop:   make(chan struct{}),
+		add:    make(chan *Entry),
+		cancel: make(chan string),
 	}
 }
 
@@ -78,7 +102,6 @@ func (c *Cron) Start() {
 // if cron instant is not running, adding to entries is trivial.
 // otherwise, to prevent data-race, adds through channel.
 func (c *Cron) Add(s Schedule, j Job) {
-
 	entry := &Entry{
 		Schedule: s,
 		Job:      j,
@@ -91,14 +114,54 @@ func (c *Cron) Add(s Schedule, j Job) {
 	c.add <- entry
 }
 
+// Add instance of JobWithCancel into entries.
+func (c *Cron) AddCancelingJob(s Schedule, j JobWithCancel) {
+	c.Add(s, j)
+}
+
 // AddFunc registers the Job function for the given Schedule.
 func (c *Cron) AddFunc(s Schedule, j func()) {
 	c.Add(s, JobFunc(j))
 }
 
+// AddFuncWithJobID registers the Job function for the given Schedule.
+func (c *Cron) AddFuncWithJobID(s Schedule, jobID string, j func()) {
+	c.Add(s, &baseJob{
+		id:      jobID,
+		JobFunc: j,
+	})
+}
+
+// Cancel job from entries
+//
+// if cron instant is not running, remove job from entries directly.
+// otherwise, to prevent data-race, removes from channel.
+func (c *Cron) Cancel(jobID string) {
+	if !c.running {
+		c.cancelJob(jobID)
+		return
+	}
+	c.cancel <- jobID
+}
+
+func (c *Cron) cancelJob(jonID string) {
+	idx := -1
+	for i, entry := range c.entries {
+		jobWithCancel, ok := entry.Job.(JobWithCancel)
+		if ok {
+			if jonID == jobWithCancel.JobID() {
+				idx = i
+				break
+			}
+		}
+	}
+	if idx != -1 {
+		c.entries = append(c.entries[:idx], c.entries[idx+1:]...)
+	}
+}
+
 // Stop halts cron instant c from running.
 func (c *Cron) Stop() {
-
 	if !c.running {
 		return
 	}
@@ -113,7 +176,6 @@ var after = time.After
 // It needs to be private as it's responsible of synchronizing a critical
 // shared state: `running`.
 func (c *Cron) run() {
-
 	var effective time.Time
 	now := time.Now().Local()
 
@@ -144,6 +206,8 @@ func (c *Cron) run() {
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
 			c.entries = append(c.entries, e)
+		case cancelJobID := <-c.cancel:
+			c.cancelJob(cancelJobID)
 		case <-c.stop:
 			return // terminate go-routine.
 		}

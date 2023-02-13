@@ -43,7 +43,6 @@ func main() {
 
 All scheduling is done in the machine's local time zone (as provided by the Go [time package](http://www.golang.org/pkg/time)).
 
-
 Setup basic periodic schedule with `gron.Every()`.
 
 ```go
@@ -100,7 +99,6 @@ c.AddFunc(gron.Every(1*time.Second), func() {
 c.Start()
 ```
 
-
 #### Custom Schedule
 Schedule is the interface that wraps the basic `Next` method: `Next(p time.Duration) time.Time`
 
@@ -110,6 +108,35 @@ In `gron`, the interface value `Schedule` has the following concrete types:
 - **atSchedule**. reoccurs every period p, at time components(hh:mm).
 
 For more info, checkout `schedule.go`.
+
+#### Cancel Job
+You may cancel specified job with a unique jobID.
+
+```go
+type canceledJob struct { // implements of JobWithCancel interface
+	id string
+}
+
+func (j *canceledJob) JobID() {
+	return id
+}
+
+func (j *canceledJob) Run() {
+  fmt.Println("job run")
+}
+
+c := gron.New()
+c.AddFuncWithJobID(gron.Every(1*time.Second), "job-id-1", func() {
+	fmt.Println("runs every second")
+})
+c.AddCancelingJob(Every(1*time.Second), &canceledJob{id: "job-id-2"})
+c.Start()
+
+time.Sleep(5 * time.Second)
+
+c.Cancel("job-id-1")
+c.Cancel("job-id-2")
+```
 
 ### Full Example
 
