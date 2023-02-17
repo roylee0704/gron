@@ -206,8 +206,10 @@ func (c *Cron) run() {
 		case e := <-c.add:
 			e.Next = e.Schedule.Next(time.Now())
 			c.entries = append(c.entries, e)
+            now = time.Now().Local()
 		case cancelJobID := <-c.cancel:
 			c.cancelJob(cancelJobID)
+            now = time.Now().Local()
 		case <-c.stop:
 			return // terminate go-routine.
 		}
