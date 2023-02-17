@@ -1,3 +1,3 @@
-module github.com/roylee0704/gron
+module github.com/fakeYanss/gron
 
 go 1.19
