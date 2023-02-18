@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fakeYanss/gron/xtime"
+	"github.com/fakeyanss/gron/xtime"
 )
 
 // Most test jobs scheduled to run at 1 second mark.

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fakeYanss/gron"
-	"github.com/fakeYanss/gron/xtime"
+	"github.com/fakeyanss/gron"
+	"github.com/fakeyanss/gron/xtime"
 )
 
 type printJob struct{ Msg string }

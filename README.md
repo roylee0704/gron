@@ -20,7 +20,7 @@ Just add feature of canceling job.
 
 ```sh
 # $ go get github.com/roylee0704/gron
-$ go get github.com/fakeYanss/gron
+$ go get github.com/fakeyanss/gron
 ```
 
 ## Usage
@@ -33,7 +33,7 @@ import (
 	"fmt"
 	"time"
 	// "github.com/roylee0704/gron"
-	"github.com/fakeYanss/gron"
+	"github.com/fakeyanss/gron"
 )
 
 func main() {
@@ -60,7 +60,7 @@ gron.Every(1*time.Hour)
 Also support `Day`, `Week` by importing `gron/xtime`:
 ```go
 // import "github.com/roylee0704/gron/xtime"
-import "github.com/fakeYanss/gron/xtime"
+import "github.com/fakeyanss/gron/xtime"
 
 gron.Every(1 * xtime.Day)
 gron.Every(1 * xtime.Week)
@@ -154,8 +154,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fakeYanss/gron"
-	"github.com/fakeYanss/gron/xtime"
+	"github.com/fakeyanss/gron"
+	"github.com/fakeyanss/gron/xtime"
 )
 
 type printJob struct{ Msg string }
