@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/roylee0704/gron/xtime"
+	"github.com/fakeyanss/gron/xtime"
 )
 
 // Most test jobs scheduled to run at 1 second mark.
@@ -105,7 +105,6 @@ func TestJobsDontRunAfterStop(t *testing.T) {
 		// no job has run
 	case <-wait(wg):
 		t.FailNow()
-
 	}
 }
 
@@ -152,6 +151,68 @@ func TestRunJobTwice(t *testing.T) {
 		t.FailNow()
 	case <-wait(wg):
 	}
+}
+
+// start cron, add a job, cancel job, verify job shouldn't run.
+func TestJobsDontRunAfterCancel(t *testing.T) {
+	done := make(chan struct{})
+	cron := New()
+	cron.Start()
+	defer cron.Stop()
+
+	jobID := "testjob1"
+
+	cron.AddFuncWithJobID(Every(1*time.Second), jobID, func() { done <- struct{}{} })
+
+	cron.cancelJob(jobID)
+
+	select {
+	case <-time.After(OneSecond):
+		// no job has run
+	case <-done:
+		t.FailNow()
+	}
+}
+
+// start cron, add several job, verify jobs run
+func TestJobAndJobWithCancelRunTogether(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(3)
+	cron := New()
+
+	jobID1, jobID2 := "testjob1", "testjob2"
+
+	cron.AddFunc(Every(5*time.Minute), func() {})
+	cron.AddFunc(Every(1*time.Second), func() { wg.Done() })
+	cron.AddFuncWithJobID(Every(1*time.Second), jobID1, func() { wg.Done() })
+	cron.AddCancelingJob(Every(1*time.Second), &canceledJob{id: jobID2, wg: wg})
+	cron.AddFunc(Every(4*xtime.Week), func() {})
+
+	cron.Start()
+	defer cron.Stop()
+
+	cron.Cancel(jobID1)
+
+	select {
+	case <-time.After(OneSecond):
+		// 2 jobs run, 1 job canceled.
+	case <-wait(wg):
+		t.FailNow()
+	}
+}
+
+// canceledJob implements JobWithCancel interface
+type canceledJob struct {
+	id string
+	wg *sync.WaitGroup
+}
+
+func (job *canceledJob) JobID() string {
+	return job.id
+}
+
+func (job *canceledJob) Run() {
+	job.wg.Done()
 }
 
 // arbitrary job struct, with god's view enabled.
@@ -284,7 +345,6 @@ func TestByTimeSort(t *testing.T) {
 	}
 
 	for i, test := range tests {
-
 		got := mockEntries(getTimes(test.entries))
 		sort.Sort(byTime(got))
 
@@ -307,7 +367,6 @@ func mockEntries(nexts []time.Time) []*Entry {
 
 // getTimes splits comma-separated time.
 func getTimes(s string) []time.Time {
-
 	ts := strings.Split(s, ",")
 	ret := make([]time.Time, len(ts))
 
